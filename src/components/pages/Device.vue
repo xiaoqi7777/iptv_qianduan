@@ -1,0 +1,269 @@
+<template>
+  <section class="device-wrapper">
+    <div class="tool_title">
+        <span>设备列表</span>
+        <el-button class="device_toolbtn device_add" @click="getAdd"></el-button>
+    </div>
+    <div>
+			<el-form :inline="true" ref="filters" class="demo-form-inline toolbar" :model="filters">
+          <el-form-item>
+            <el-input v-model="filters.name" placeholder="设备名称"></el-input>
+          </el-form-item>
+				<el-form-item>
+					<el-input v-model="filters.serial_number" placeholder="唯一串码"></el-input>
+				</el-form-item>
+        <el-form-item>
+          <el-select v-model="filters.status" placeholder="设备状态">
+            <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+				<el-form-item>
+					<el-button class="device_toolbtn device_search" @click="getDeviceList(true)"></el-button>
+				</el-form-item>
+			</el-form>
+		</div>
+    <div class="table_wrapper">
+      <el-table
+            :data="tableData"
+            stripe
+            class="table_list">
+            <el-table-column
+            prop="name"
+            label="设备名称"
+            align="center"
+            :resizable="false"
+            width="150">
+            </el-table-column>
+            <el-table-column
+            prop="serial_number"
+            label="唯一码串号"
+            align="center"
+            :resizable="false"
+            width="200">
+            </el-table-column>
+            <el-table-column
+            prop="status"
+            label="设备状态"
+            align="center"
+            :resizable="false"
+            width="120">
+              <template slot-scope="scope">
+                <div class="status_css" :class="{'status_css_red': scope.row.status == 'offline'}">
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+            prop="description"
+            label="设备描述"
+            align="left"
+            :resizable="false"
+            >
+              <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" :content="scope.row.description" placement="top-start">
+                  <div class="description-wrapper">{{scope.row.description}}</div>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+            <el-table-column
+            label="操作"
+            align="right"
+            header-align="center"
+            :resizable="false"
+            width="240">
+              <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" content="频道列表" placement="top-start">
+                    <el-button
+                    size="small"
+                    :disabled="scope.row.status === 'offline'"
+                    class="table_list_btn device_channelList"
+                    @click="goChannelList(scope.row.id)"
+                    ></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
+                  <el-button size="small" class="table_list_btn table_edit" @click="getEdit(scope.row.id)"></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
+                  <el-button size="small" class="table_list_btn table_delete" @click="deleteUser(scope.$index, tableData, scope.row.id)"></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="远程ssh" placement="top-start">
+                  <el-button size="small" class="table_list_btn device_ssh" :disabled="scope.row.status === 'offline'"  @click="goSSH(scope.row)"></el-button>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+        </el-table>
+        <el-pagination
+        @current-change="handleCurrentChange"
+        :current-page.sync="currentPage"
+        layout="prev, pager, next"
+        :total="totalPage"
+        >
+        </el-pagination>
+    </div>
+    <DeviceDialog :device="device_id" v-if="dialogStatus" @updateTable="updateHandle" :show.sync="dialogStatus"></DeviceDialog>
+    <SSHDialog :device="device" v-if="sshDialog" :show.sync="sshDialog"></SSHDialog>
+  </section>
+</template>
+
+<script>
+
+  import DeviceDialog from './DeviceDialog.vue'
+  import SSHDialog from './SSHDialog.vue'
+
+  export default {
+    name: 'device',
+    components: {
+      DeviceDialog,
+      SSHDialog
+    },
+    mounted () {
+      this.getDeviceList ()
+    },
+    data () {
+      return {
+        filters: {
+          name: '',
+          serial_number: '',
+          status: ''
+        },
+        options: [
+          {
+            value: '',
+            label: '全部'
+          },
+          {
+            value: 'offline',
+            label: '离线'
+          },
+          {
+            value: 'online',
+            label: '在线'
+          }
+        ],
+        tableData: [],
+        totalPage: null,
+        currentPage: 1,
+        dialogStatus: false,
+        device_id: null,
+        sshDialog: false,
+        device: null,
+      }
+    },
+    methods: {
+      getAdd () {
+        this.device_id = null
+        this.dialogStatus = true
+      },
+
+      getDeviceList (status) {
+        let params = {
+          current_page: this.currentPage
+        }
+        if(status) {
+          Object.assign(params, this.filters)
+          params.current_page = 1
+          this.axio.post(`device/list`, params)
+          .then((response) => {
+            if(response.data.ret.code === 0) {
+              this.currentPage = 1
+              this.totalPage = response.data.data.total
+              this.tableData = response.data.data.res
+            }
+          })
+        }else {
+          this.axio.post(`device/list`, params)
+          .then((response) => {
+            if(response.data.ret.code === 0) {
+              this.totalPage = response.data.data.total
+              this.tableData = response.data.data.res
+            }
+          })
+        }
+      },
+
+      goChannelList (id) {
+        this.$router.push({
+          path: `channel/${id}`,
+        })
+      },
+
+      getEdit (id) {
+        this.device_id = id
+        this.dialogStatus = true
+      },
+
+      deleteUser (index, rows, id) {
+        const h = this.$createElement;
+        this.$msgbox({
+          title: '删除设备 ' + rows[index].name,
+          message: h('p', null, [
+            h('span', null, '此操作会删除该设备下的所有频道，确定删除该设备吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true;
+              instance.confirmButtonText = '删除中...';
+              this.axio.delete(`device/${id}`)
+              .then((response) => {
+                if(response.data.ret.code === 0) {
+                  done();
+                  instance.confirmButtonLoading = false;
+                  this.getDeviceList ()
+                }else {
+                  this.$notify({
+                    title: '错误',
+                    message: `频道删除失败: ${this.errLanguage(response)}`,
+                    type: 'error'
+                  });
+                }
+              })
+            } else {
+              done();
+            }
+          }
+        }).then(action => {
+          this.$notify({
+            type: 'success',
+            message: '删除成功'
+          })
+        }).catch(() => {
+          this.$notify({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      },
+
+      updateHandle () {
+        this.getDeviceList ()
+      },
+
+      goSSH (deviceData) {
+        this.device = deviceData
+        this.sshDialog = true
+      },
+      //修改当前页
+      handleCurrentChange(val) {
+        this.currentPage = val
+        this.getDeviceList ()
+      },
+    }
+  }
+</script>
+
+<style scoped>
+  .description-wrapper {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+</style>
