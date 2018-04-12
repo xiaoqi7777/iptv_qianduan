@@ -1,13 +1,24 @@
 <template>
   <section class="login-wrapper">
     <div class="login-card">
-      <p class="login-title">IPTV</p>
+      <p class="login-title">IPTV
+        <el-popover
+          ref="version"
+          placement="right"
+          width="200"
+          trigger="click"
+          popper-class="version_css">
+          <p>软件版本: V {{soft_version}}</p>
+          <p>后台版本: V {{cloud_version}}</p>
+        </el-popover>
+        <el-button type="text" style="padding: 0;" circle icon="el-icon-info" v-popover:version></el-button>
+      </p>
       <el-form :model="loginForm" ref="loginForm" :rules="loginRules">
         <el-form-item prop="user_name">
           <el-input @keyup.enter.native="login_click" v-model.trim="loginForm.user_name" placeholder="Name"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input @keyup.enter.native="login_click" v-model.trim="loginForm.password" placeholder="Password"></el-input>
+          <el-input type="password" @keyup.enter.native="login_click" v-model.trim="loginForm.password" placeholder="Password"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button class="login_btn" type="primary" :loading="loading" @click="login_click">登入</el-button>
@@ -20,8 +31,17 @@
 <script>
   export default {
     name: 'login',
+    mounted () {
+      this.axio.get(`system/version`)
+      .then((response) => {
+        if(response.data.ret.code === 0) {
+          this.cloud_version = response.data.data.version
+        }
+      })
+    },
     data () {
       return {
+        cloud_version: '',
         loginForm: {
           user_name: '',
           password: ''

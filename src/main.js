@@ -6,12 +6,16 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios'
+import {soft_version} from './version' 
+
+
+Vue.prototype.soft_version = soft_version
 
 
 Vue.use(ElementUI);
 let url = ''
 if (process.env.NODE_ENV == 'development') {
-  url = 'http://192.168.1.170:3000/api/v1'
+  url = 'http://192.168.1.170:3003/api/v1'
 }else {
   url = window.location.protocol + '//' + window.location.host + '/api/v1'
 }
@@ -19,8 +23,9 @@ Vue.prototype.axio = axios.create({
   baseURL: url,
 })
 
+
 // axios拦截器(request)
-axios.interceptors.request.use(function(config){
+Vue.prototype.axio.interceptors.request.use(function(config){
   //在请求发出之前进行一些操作
   if(sessionStorage.token) {
     config.headers.Authorization = 'Bearer ' + sessionStorage.token

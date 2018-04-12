@@ -1,7 +1,18 @@
 <template>
   <section class="home-wrapper">
     <aside class="menu">
-      <div class="menu-title">IPTV</div>
+      <div class="menu-title">IPTV
+        <el-popover
+          ref="version"
+          placement="right"
+          width="200"
+          trigger="click"
+          popper-class="version_css">
+          <p>软件版本: V {{soft_version}}</p>
+          <p>后台版本: V {{cloud_version}}</p>
+        </el-popover>
+        <el-button type="text" style="padding: 0;" circle icon="el-icon-info" v-popover:version></el-button>
+      </div>
       <el-menu class="menu-wrapper" :default-active="$route.name === 'channel' ? '/device' : $route.path" router>
         <el-menu-item v-for="(item, index) in $router.options.routes[0].children"
           :key="index"
@@ -41,9 +52,16 @@
               { name: 'user_css' },
           ]
       })
+      this.axio.get(`system/version`)
+      .then((response) => {
+        if(response.data.ret.code === 0) {
+          this.cloud_version = response.data.data.version
+        }
+      })
     },
     data () {
       return {
+        cloud_version: '',
         user_name: '',
         user_icons: [
           { name: 'user_css' },

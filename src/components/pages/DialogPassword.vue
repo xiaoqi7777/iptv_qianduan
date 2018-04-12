@@ -6,13 +6,13 @@
       @close="closeHandle">
       <el-form :model="passwordForm" ref="passwordForm" :rules="passwordRules" label-width="1rem">
         <el-form-item label="原密码" prop="oldpassword">
-          <el-input type="password" v-model="passwordForm.oldpassword"></el-input>
+          <el-input type="password" v-model.trim="passwordForm.oldpassword"></el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="newpassword">
-          <el-input type="password" v-model="passwordForm.newpassword"></el-input>
+          <el-input type="password" v-model.trim="passwordForm.newpassword"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="comfirmpassword">
-          <el-input type="password" v-model="passwordForm.comfirmpassword"></el-input>
+          <el-input type="password" v-model.trim="passwordForm.comfirmpassword"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveHandle">保存</el-button>
@@ -62,7 +62,24 @@
       saveHandle () {
         this.$refs.passwordForm.validate((valid) => {
           if(valid) {
-
+            this.axio.put(`user/update_password`, {
+              password: this.passwordForm.oldpassword,
+              new_password: this.passwordForm.newpassword,
+              user_name: sessionStorage.name
+            }).then((response) => {
+              if(response.data.ret.code === 0) {
+                this.$notify({
+                  type: 'success',
+                  message: '密码修改成功'
+                })
+                this.closeHandle ()
+              }else {
+                this.$notify({
+                  type: 'error',
+                  message: `密码修改失败: ${this.errLanguage(response)}`
+                })
+              }
+            })
           }
         })
       }

@@ -6,7 +6,14 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  mounted () {
+    if(sessionStorage.token) {
+      this.$router.push('/device')
+    }else {
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 
@@ -241,6 +248,15 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
+}
+
+.version_css {
+  background-color: #33485c;
+  color: #fff;
+  border-color: #2a3950;
+}
+.el-popover__title {
+  color: #fff;
 }
 
 </style>
