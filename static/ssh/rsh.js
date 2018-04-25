@@ -8,7 +8,6 @@ rsh_ret.prototype.close = function () {
   //if (this.term) this.term.end();
 }
 
-
 function run_rsh(dom_id, url, ssh_host, ssh_port, user_name, serial_number, device_id) {
   var term;
   var buf = "";

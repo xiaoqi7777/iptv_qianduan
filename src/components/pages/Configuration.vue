@@ -10,7 +10,7 @@
             <el-input v-model="filters.name" placeholder="名称"></el-input>
           </el-form-item>
 				<el-form-item>
-					<el-button class="device_toolbtn device_search" @click="getTemplateList(true)"></el-button>
+					<el-button class="device_toolbtn device_search" @click="getTemplateList"></el-button>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -39,9 +39,6 @@
           <template slot-scope="scope">
             <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
               <el-button size="small" class="table_list_btn table_edit" @click="getEdit(scope.row.id)"></el-button>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
-              <el-button size="small" class="table_list_btn table_delete" @click="deleteUser(scope.$index, tableData, scope.row.id)"></el-button>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" :content="scope.row.disabled ? '禁用模板' : '启用模板'" placement="top-start">
               <el-switch class="table_list_btn" @change="changeHandle(scope.row)" style="vertical-align: top; margin-left: 10px;" v-model="scope.row.disabled"></el-switch>
@@ -96,51 +93,6 @@
         this.dialog_configuration = true
       },
 
-      deleteUser (index, rows, id) {
-        const h = this.$createElement;
-        this.$msgbox({
-          title: '删除模板 ' + rows[index].name,
-          message: h('p', null, [
-            h('span', null, '确定删除该模板吗？')
-          ]),
-          showCancelButton: true,
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          beforeClose: (action, instance, done) => {
-            if (action === 'confirm') {
-              instance.confirmButtonLoading = true;
-              instance.confirmButtonText = '删除中...';
-              this.axio.delete(`template/${id}`)
-              .then((response) => {
-                if(response.data.ret.code === 0) {
-                  done();
-                  instance.confirmButtonLoading = false;
-                  this.getTemplateList ()
-                }else {
-                  this.$notify({
-                    title: '错误',
-                    message: `模板删除失败: ${this.errLanguage(response)}`,
-                    type: 'error'
-                  });
-                }
-              })
-            } else {
-              done();
-            }
-          }
-        }).then(action => {
-          this.$notify({
-            type: 'success',
-            message: '删除成功'
-          })
-        }).catch(() => {
-          this.$notify({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
-      },
-
       changeHandle (val) {
         const h = this.$createElement;
         this.$msgbox({
@@ -190,9 +142,15 @@
         this.getTemplateList ()
       },
 
-      getTemplateList (status) {
-        let params = {
+      getTemplateList () {
+        let status = false, params = {
           current_page: this.currentPage
+        }
+        for(let value of Object.values(this.filters)) {
+          if(value !== '') {
+            status = true;
+            break;
+          }
         }
         if(status) {
           Object.assign(params, this.filters)

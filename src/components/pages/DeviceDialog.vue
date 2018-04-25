@@ -16,6 +16,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveHandle">保存</el-button>
+          <el-button type="danger" @click="deleteHandle">删除</el-button>
           <el-button @click="hangleClose">取消</el-button>
         </el-form-item>
       </el-form>
@@ -61,7 +62,8 @@
           serial_number: [
             { required: true, message: '请填写唯一码串号', trigger: 'blur' }
           ]
-        }
+        },
+        fastClick: true
       }
     },
     methods: {
@@ -70,46 +72,97 @@
         this.$emit('update:show', false)
       },
 
-      saveHandle () {
-        this.$refs.deviceForm.validate((valid) => {
-          if(valid) {
-            if(this.device !== null) {
-              this.axio.put(`device/update`, this.deviceForm).then((response) => {
+      deleteHandle () {
+        const h = this.$createElement;
+        this.$msgbox({
+          title: '删除设备 ' + this.deviceForm.name,
+          message: h('p', null, [
+            h('span', null, '此操作会删除该设备下的所有频道，确定删除该设备吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true;
+              instance.confirmButtonText = '删除中...';
+              this.axio.delete(`device/${this.deviceForm.id}`)
+              .then((response) => {
                 if(response.data.ret.code === 0) {
-                  this.$notify({
-                    title: '成功',
-                    message: '编辑设备成功',
-                    type: 'success'
-                  });
+                  done();
+                  instance.confirmButtonLoading = false;
                   this.hangleClose ()
                 }else {
                   this.$notify({
                     title: '错误',
-                    message: `设备编辑成功: ${this.errLanguage(response)}`,
+                    message: `频道删除失败: ${this.errLanguage(response)}`,
                     type: 'error'
                   });
                 }
               })
-            }else {
-              this.axio.post(`device/create`, this.deviceForm).then((response) => {
-                if(response.data.ret.code === 0) {
-                  this.$notify({
-                    title: '成功',
-                    message: '添加设备成功',
-                    type: 'success'
-                  });
-                  this.hangleClose ()
-                }else {
-                  this.$notify({
-                    title: '错误',
-                    message: `设备添加失败: ${this.errLanguage(response)}`,
-                    type: 'error'
-                  });
-                }
-              })
+            } else {
+              done();
             }
           }
+        }).then(action => {
+          this.$notify({
+            type: 'success',
+            message: '删除成功'
+          })
+        }).catch(() => {
+          this.$notify({
+            type: 'info',
+            message: '已取消删除'
+          })
         })
+      },
+
+      saveHandle () {
+        if(this.fastClick) {
+          this.fastClick = false
+          setTimeout(() => {
+            this.fastClick = true
+          }, 2000)
+          this.$refs.deviceForm.validate((valid) => {
+            if(valid) {
+              if(this.device !== null) {
+                this.axio.put(`device/update`, this.deviceForm).then((response) => {
+                  if(response.data.ret.code === 0) {
+                    this.$notify({
+                      title: '成功',
+                      message: '编辑设备成功',
+                      type: 'success'
+                    });
+                    this.hangleClose ()
+                  }else {
+                    this.$notify({
+                      title: '错误',
+                      message: `设备编辑成功: ${this.errLanguage(response)}`,
+                      type: 'error'
+                    });
+                  }
+                })
+              }else {
+                this.axio.post(`device/create`, this.deviceForm).then((response) => {
+                  if(response.data.ret.code === 0) {
+                    this.$notify({
+                      title: '成功',
+                      message: '添加设备成功',
+                      type: 'success'
+                    });
+                    this.hangleClose ()
+                  }else {
+                    this.$notify({
+                      title: '错误',
+                      message: `设备添加失败: ${this.errLanguage(response)}`,
+                      type: 'error'
+                    });
+                  }
+                })
+              }
+            }
+          })
+        }
       }
     }
   }

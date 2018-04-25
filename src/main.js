@@ -1,13 +1,12 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import App from './App'
 import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import App from './App'
 import axios from 'axios'
-import {soft_version} from './version' 
-
+import {soft_version} from './version'
 
 Vue.prototype.soft_version = soft_version
 
@@ -15,7 +14,7 @@ Vue.prototype.soft_version = soft_version
 Vue.use(ElementUI);
 let url = ''
 if (process.env.NODE_ENV == 'development') {
-  url = 'http://192.168.1.170:3003/api/v1'
+  url = 'http://192.168.1.138:3003/api/v1'
 }else {
   url = window.location.protocol + '//' + window.location.host + '/api/v1'
 }

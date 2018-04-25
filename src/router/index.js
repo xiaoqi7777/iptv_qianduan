@@ -5,6 +5,7 @@ import Home from '@/components/Home'
 import Hello from '@/components/HelloWorld'
 import Device from '@/components/pages/Device'
 import Channel from '@/components/pages/Channel'
+import Dibbling from '@/components/pages/Dibbling'
 import Configuration from '@/components/pages/Configuration'
 
 
@@ -38,6 +39,12 @@ const router = new Router({
           name: 'channel',
           hidden: true,
           component: Channel
+        },
+        {
+          path: '/dibbling/:id',
+          name: 'dibbling',
+          hidden: true,
+          component: Dibbling
         }
       ]
     },

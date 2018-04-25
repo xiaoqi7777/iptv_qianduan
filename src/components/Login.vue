@@ -1,7 +1,7 @@
 <template>
   <section class="login-wrapper">
     <div class="login-card">
-      <p class="login-title">IPTV
+      <p class="login-title">IPTV监控系统
         <el-popover
           ref="version"
           placement="right"

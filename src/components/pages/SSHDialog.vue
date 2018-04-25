@@ -14,12 +14,13 @@
 </template>
 
 <script>
+
   export default {
     name: 'ssh',
     props: ['show', 'device'],
     mounted () {
       if (process.env.NODE_ENV == 'development') {
-        this.Rsh = run_rsh('terminal', 'http://192.168.1.170:3000', 'localhost', 22, 'root', this.device.serial_number, this.device.id);
+        this.Rsh = run_rsh('terminal', 'http://192.168.1.138:3003', 'localhost', 22, 'root', this.device.serial_number, this.device.id);
       }else {
         this.Rsh = run_rsh('terminal', window.location.protocol + '//' + window.location.host, 'localhost', 22, 'root', this.device.serial_number, this.device.id);
       }

@@ -23,7 +23,7 @@
           </el-select>
         </el-form-item>
 				<el-form-item>
-					<el-button class="device_toolbtn device_search" @click="getDeviceList(true)"></el-button>
+					<el-button class="device_toolbtn device_search" @click="getDeviceList"></el-button>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -32,12 +32,22 @@
             :data="tableData"
             stripe
             class="table_list">
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <el-form label-position="top" v-if="scope.row.description" class="device-description">
+                  <el-form-item label="设备描述">
+                    <div class="description-wrapper">{{scope.row.description}}</div>
+                  </el-form-item>
+                </el-form>
+                <div class="expand-empty" v-else>暂无更多信息</div>
+              </template>
+            </el-table-column>
             <el-table-column
             prop="name"
             label="设备名称"
             align="center"
             :resizable="false"
-            width="150">
+            width="200">
             </el-table-column>
             <el-table-column
             prop="serial_number"
@@ -51,22 +61,10 @@
             label="设备状态"
             align="center"
             :resizable="false"
-            width="120">
+            >
               <template slot-scope="scope">
                 <div class="status_css" :class="{'status_css_red': scope.row.status == 'offline'}">
                 </div>
-              </template>
-            </el-table-column>
-            <el-table-column
-            prop="description"
-            label="设备描述"
-            align="left"
-            :resizable="false"
-            >
-              <template slot-scope="scope">
-                <el-tooltip class="item" effect="dark" :content="scope.row.description" placement="top-start">
-                  <div class="description-wrapper">{{scope.row.description}}</div>
-                </el-tooltip>
               </template>
             </el-table-column>
             <el-table-column
@@ -74,21 +72,25 @@
             align="right"
             header-align="center"
             :resizable="false"
-            width="240">
+            width="280">
               <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" content="点播列表" placement="top-start">
+                  <el-button
+                  size="small"
+                  class="table_list_btn device_dibblingList"
+                  @click="goDibblingList(scope.row.id)"
+                  ></el-button>
+                </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="频道列表" placement="top-start">
-                    <el-button
-                    size="small"
-                    :disabled="scope.row.status === 'offline'"
-                    class="table_list_btn device_channelList"
-                    @click="goChannelList(scope.row.id)"
-                    ></el-button>
+                  <el-button
+                  size="small"
+                  :disabled="scope.row.status === 'offline'"
+                  class="table_list_btn device_channelList"
+                  @click="goChannelList(scope.row.id)"
+                  ></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
                   <el-button size="small" class="table_list_btn table_edit" @click="getEdit(scope.row.id)"></el-button>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
-                  <el-button size="small" class="table_list_btn table_delete" @click="deleteUser(scope.$index, tableData, scope.row.id)"></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="远程ssh" placement="top-start">
                   <el-button size="small" class="table_list_btn device_ssh" :disabled="scope.row.status === 'offline'"  @click="goSSH(scope.row)"></el-button>
@@ -159,9 +161,15 @@
         this.dialogStatus = true
       },
 
-      getDeviceList (status) {
-        let params = {
+      getDeviceList () {
+        let status = false, params = {
           current_page: this.currentPage
+        }
+        for(let value of Object.values(this.filters)) {
+          if(value !== '') {
+            status = true;
+            break;
+          }
         }
         if(status) {
           Object.assign(params, this.filters)
@@ -185,6 +193,12 @@
         }
       },
 
+      goDibblingList (id) {
+        this.$router.push({
+          path: `dibbling/${id}`,
+        })
+      },
+
       goChannelList (id) {
         this.$router.push({
           path: `channel/${id}`,
@@ -194,51 +208,6 @@
       getEdit (id) {
         this.device_id = id
         this.dialogStatus = true
-      },
-
-      deleteUser (index, rows, id) {
-        const h = this.$createElement;
-        this.$msgbox({
-          title: '删除设备 ' + rows[index].name,
-          message: h('p', null, [
-            h('span', null, '此操作会删除该设备下的所有频道，确定删除该设备吗？')
-          ]),
-          showCancelButton: true,
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          beforeClose: (action, instance, done) => {
-            if (action === 'confirm') {
-              instance.confirmButtonLoading = true;
-              instance.confirmButtonText = '删除中...';
-              this.axio.delete(`device/${id}`)
-              .then((response) => {
-                if(response.data.ret.code === 0) {
-                  done();
-                  instance.confirmButtonLoading = false;
-                  this.getDeviceList ()
-                }else {
-                  this.$notify({
-                    title: '错误',
-                    message: `频道删除失败: ${this.errLanguage(response)}`,
-                    type: 'error'
-                  });
-                }
-              })
-            } else {
-              done();
-            }
-          }
-        }).then(action => {
-          this.$notify({
-            type: 'success',
-            message: '删除成功'
-          })
-        }).catch(() => {
-          this.$notify({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
       },
 
       updateHandle () {
@@ -260,10 +229,15 @@
 
 <style scoped>
   .description-wrapper {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.5;
+  }
+
+  .device-description > .el-form-item {
+    margin-bottom: 0;
+  }
+
+  .expand-empty {
+    text-align: center;
   }
 
 </style>

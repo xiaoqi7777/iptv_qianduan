@@ -1,7 +1,7 @@
 <template>
   <section class="dialog-wrapper">
     <el-dialog 
-      :title="`频道: ${play.name}`" 
+      :title="`${play.name}`" 
       top="5vh"
       :before-close="configurationClose" 
       :visible="show" 
@@ -31,7 +31,7 @@
 
   export default {
     name: 'play',
-    props: ['show', 'play'],
+    props: ['show', 'play', 'types'],
     components: {
       videoPlayer
     },
@@ -39,7 +39,7 @@
       console.log(this.$refs.videoPlayer)
       Object.assign(this.playerOptions, {
         sources: [{
-          type: 'rtmp/mp4',
+          type: this.types,
           src: this.play.play_url
         }]
       })

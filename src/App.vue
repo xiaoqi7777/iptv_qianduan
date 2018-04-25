@@ -194,6 +194,10 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
   background-image: url('./assets/btn_playlist.png') !important;
 }
 
+.device_dibblingList {
+  background-image: url('./assets/btn_list.png') !important;
+}
+
 .el-dialog__header {
   font-size: 0;
 }
@@ -257,6 +261,10 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
 }
 .el-popover__title {
   color: #fff;
+}
+
+.tool_back {
+  background-color: #409EFF;
 }
 
 </style>
