@@ -78,7 +78,7 @@
                   <el-button
                   size="small"
                   class="table_list_btn device_dibblingList"
-                  @click="goDibblingList(scope.row.id)"
+                  @click="goDibblingList(scope.row)"
                   ></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="频道列表" placement="top-start">
@@ -193,9 +193,13 @@
         }
       },
 
-      goDibblingList (id) {
+      goDibblingList (scope) {
         this.$router.push({
-          path: `dibbling/${id}`,
+          name: `dibbling`,
+          params: {
+            id: scope.id,
+            device_name: scope.name
+          }
         })
       },
 

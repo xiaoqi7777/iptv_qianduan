@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveHandle">保存</el-button>
-          <el-button type="danger"  @click="deleteHandle">删除</el-button>
+          <el-button v-if="configuration !== null" type="danger"  @click="deleteHandle">删除</el-button>
           <el-button @click="configurationClose">取消</el-button>
         </el-form-item>
       </el-form>

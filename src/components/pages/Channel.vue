@@ -260,7 +260,12 @@
 
       goDibbling (value) {
         this.$router.push({
-          path: `/dibbling/${value.device_id}`,
+          name: `dibbling`,
+          params: {
+            id: value.device_id,
+            channel_name: value.name,
+            device_name: value.device_name || ''
+          }
         })
       },
 
@@ -417,7 +422,7 @@
 
   .channel_play {
     background-image: url('../../assets/btn_view.png');
-    background-color: #409EFF;
+    background-color: #409EFF !important;
     background-size: .3rem;
   }
 

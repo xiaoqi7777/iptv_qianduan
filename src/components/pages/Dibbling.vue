@@ -1,7 +1,11 @@
 <template>
   <section class="dibbling-wrapper">
     <div class="tool_title">
-      <span>点播列表</span>
+      <span>
+        <span v-if="$route.params.device_name">设备 <span class="title-content">{{`${$route.params.device_name} `}}</span></span>
+        <span v-if="$route.params.channel_name">频道 <span class="title-content">{{`${$route.params.channel_name} `}}</span></span>
+        的点播列表
+      </span>
       <el-button class="device_toolbtn tool_back" type="primary" round @click="goBack">返回</el-button>
     </div>
     <div>
@@ -62,6 +66,9 @@
             <el-tooltip class="item" effect="dark" content="预览" placement="top-start">
               <el-button size="small" class="table_list_btn channel_play"  @click="playChannel(scope.row)"></el-button>
             </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="下载" placement="top-start">
+              <el-button size="small" icon="el-icon-download" class="table_list_btn channel_download"  @click="fileDownload(scope.row)"></el-button>
+            </el-tooltip>
             <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
               <el-button size="small" class="table_list_btn table_delete"  @click="deleteDibbling(scope.row)"></el-button>
             </el-tooltip>
@@ -113,7 +120,10 @@
       getDibblingList () {
         let status = false, params = {
           current_page: this.currentPage,
-          device_id: this.$route.params.id
+          device_id: parseInt(this.$route.params.id),
+        }
+        if(this.$route.params.channel_name) {
+          params.channel_name = this.$route.params.channel_name
         }
         for(let value of Object.values(this.filters)) {
           if(value !== '') {
@@ -155,6 +165,10 @@
           name: value.file_name
         }
         this.play_dialog = true
+      },
+
+      fileDownload (scope) {
+        window.location.href = scope.play_url
       },
 
       deleteDibbling (scope) {
@@ -215,7 +229,17 @@
 <style scoped>
   .channel_play {
     background-image: url('../../assets/btn_view.png');
-    background-color: #409EFF;
+    background-color: #409EFF !important;
     background-size: .3rem;
   }
+
+  .channel_download {
+    vertical-align: text-bottom;
+    font-size: 0.3rem;
+    background-color: transparent !important;
+  }
+
+  .title-content {
+    color: #409eff;
+  } 
 </style>

@@ -57,6 +57,7 @@
           muted: true,
           language: 'en',
           height: '500',
+          width: '100%',
           autoplay: true,
           preload: true,
           techOrder: [ 'html5', 'flash'],
