@@ -69,7 +69,7 @@
           width="240"
         >
           <template slot-scope="scope">
-            <el-tooltip v-if="scope.row.play_url !== null" class="item" effect="dark" content="预览" placement="top-start">
+            <el-tooltip class="item" effect="dark" content="预览" placement="top-start">
               <el-button size="small" class="table_list_btn channel_play"  @click="playChannel(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip  class="item" effect="dark" content="点播列表" placement="top-start">

@@ -11,6 +11,9 @@ import {soft_version} from './version'
 Vue.prototype.soft_version = soft_version
 
 
+
+
+
 Vue.use(ElementUI);
 let url = ''
 if (process.env.NODE_ENV == 'development') {

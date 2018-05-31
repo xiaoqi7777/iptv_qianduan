@@ -197,7 +197,12 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
 .device_dibblingList {
   background-image: url('./assets/btn_list.png') !important;
 }
-
+.disabledPlay{
+  background-image: url('./assets/disabledPlay.png') !important;
+}
+.play{
+  background-image: url('./assets/play.png') !important;
+}
 .el-dialog__header {
   font-size: 0;
 }
@@ -240,6 +245,13 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
 .device_add {
   background-image: url('./assets/btn_addnew_a.png');
 }
+.controlL {
+  background-image: url('./assets/controlL.png') !important;
+}
+.control {
+  background-image: url('./assets/control.png') !important;
+}
+
 
 .video-js {
   width: 100% !important;

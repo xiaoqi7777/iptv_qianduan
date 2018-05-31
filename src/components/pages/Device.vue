@@ -6,7 +6,7 @@
     </div>
     <div>
 			<el-form :inline="true" ref="filters" class="demo-form-inline toolbar" :model="filters">
-          <el-form-item>
+        <el-form-item>
             <el-input v-model="filters.name" placeholder="设备名称"></el-input>
           </el-form-item>
 				<el-form-item>
@@ -23,7 +23,7 @@
           </el-select>
         </el-form-item>
 				<el-form-item>
-					<el-button class="device_toolbtn device_search" @click="getDeviceList"></el-button>
+					<el-button class="device_toolbtn device_search"  @click="getDeviceList"></el-button>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -74,7 +74,16 @@
             :resizable="false"
             width="280">
               <template slot-scope="scope">
-                <el-tooltip class="item" effect="dark" content="点播列表" placement="top-start">
+                <el-tooltip class="item" effect="light" content="远程控制" placement="right-end" >
+                  <el-button
+                  size="small"
+                  class="table_list_btn " :class="scope.row.status==='offline'?'control':'controlL'"
+                  :disabled="scope.row.status==='offline'?'disabled':null"
+                  @click="dialogVisibles(true,scope.row)"
+                  ></el-button>
+                </el-tooltip>
+<!-- :class="scope.row.status==='offline'?'control':'controlL'" -->
+                <el-tooltip class="item" effect="dark" content="直播频道点播列表" placement="top-start">
                   <el-button
                   size="small"
                   class="table_list_btn device_dibblingList"
@@ -105,6 +114,22 @@
         :total="totalPage"
         >
         </el-pagination>
+
+        <el-dialog
+          :title="`远程控制的设备：${nameId}`"
+          :visible.sync="dialogVisible"
+          :close-on-click-modal="false"
+          @close="close"          
+          width="688px"
+          :before-close="handleClose" >
+          <span>
+              <Home v-if='isShow' ref="play" :id='id'/>
+          </span>
+          <span slot="footer" class="dialog-footer">
+            
+          </span>
+        </el-dialog>
+
     </div>
     <DeviceDialog :device="device_id" v-if="dialogStatus" @updateTable="updateHandle" :show.sync="dialogStatus"></DeviceDialog>
     <SSHDialog :device="device" v-if="sshDialog" :show.sync="sshDialog"></SSHDialog>
@@ -115,18 +140,24 @@
 
   import DeviceDialog from './DeviceDialog.vue'
   import SSHDialog from './SSHDialog.vue'
-
+  import Home from './home'
   export default {
     name: 'device',
     components: {
       DeviceDialog,
-      SSHDialog
+      SSHDialog,
+      Home
     },
     mounted () {
       this.getDeviceList ()
     },
     data () {
       return {
+        //设备ID
+        id:'',
+        isShow:false,
+        nameId:'',
+        dialogVisible:false,
         filters: {
           name: '',
           serial_number: '',
@@ -156,6 +187,19 @@
       }
     },
     methods: {
+      close(){
+        // 用v-if 关闭 远程控制的设备： 的el-dialog  不然里面的东西还会存在 报错
+        this.isShow = this.$refs.play.test1()
+         console.log('ref*****************************ref',this.$refs.play.test1()) 
+      },
+      dialogVisibles(boolean,item){
+        this.id = item.id
+        console.log('打开播放器 打印id',this.id)
+        this.isShow = true
+        this.dialogVisible = boolean
+        this.nameId = item.name
+        
+      },
       getAdd () {
         this.device_id = null
         this.dialogStatus = true
@@ -188,11 +232,18 @@
             if(response.data.ret.code === 0) {
               this.totalPage = response.data.data.total
               this.tableData = response.data.data.res
+              console.log('*******',this.tableData)
             }
           })
         }
       },
-
+      handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      },
       goDibblingList (scope) {
         this.$router.push({
           name: `dibbling`,
@@ -231,7 +282,17 @@
   }
 </script>
 
+<style>
+/* 处理默认样式 */
+  .el-dialog{
+    min-width: 846px !important;
+    padding-bottom:0px
+  }
+  
+</style>
+
 <style scoped>
+
   .description-wrapper {
     line-height: 1.5;
   }

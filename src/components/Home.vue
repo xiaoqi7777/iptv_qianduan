@@ -23,7 +23,7 @@
       </el-menu>
       <div class="menu-user">
         <ul class="menu-user-icon" >
-            <li v-for="item in user_icons" @click.stop="userHandle(item.name)" class="user-icon-list" :class="item.name"></li>
+            <li v-for="item in user_icons" @click.stop="userHandle(item.name)" class="user-icon-list" :key="item.index" :class="item.name"></li>
         </ul>
         <div class="menu-user-name">{{user_name}}</div>
       </div>
