@@ -41,7 +41,9 @@ export default {
             src: this.play_url
           }
         ]
-      }
+      },
+    channel_name:'',
+    channel_id:0
     };
   },
   beforeDestroy(){
@@ -54,9 +56,11 @@ export default {
     //     src: this.play.play_url
     //     }]
     // })
-
-    console.log("video");
-    console.log("this", this);
+    this.channel_name = sessionStorage.getItem("channel_name");
+    this.channel_id = sessionStorage.getItem("channel_id");
+    
+    console.log("video",this.channel_id,'----------',this.channel_name);
+    console.log("this  chID  chName--------------------------- ", this.channel_name,this.channel_id);
     console.log("this", `"${this.play_url}"`);
   },
   components: {

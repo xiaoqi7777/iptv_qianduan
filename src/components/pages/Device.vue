@@ -74,7 +74,7 @@
             :resizable="false"
             width="280">
               <template slot-scope="scope">
-                <el-tooltip class="item" effect="light" content="远程控制" placement="right-end" >
+                <el-tooltip class="item" effect="dark" content="远程监看" placement="top-start" >
                   <el-button
                   size="small"
                   class="table_list_btn " :class="scope.row.status==='offline'?'control':'controlL'"
@@ -288,7 +288,12 @@
     min-width: 846px !important;
     padding-bottom:0px
   }
-  
+  .el-dialog__body {
+    padding: 7px 20px;
+  }
+  .el-dialog__footer{
+    padding: 7px;
+  }
 </style>
 
 <style scoped>

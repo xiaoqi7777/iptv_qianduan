@@ -8,11 +8,11 @@
 
     <div v-show="!loadTwoShow">
         <div class="hello" v-show='!loadShow'> 
-          <canvas id="canvas" style="border: 1px solid red;" v-show="!this.play_url"></canvas>
+          <canvas id="canvas"  v-show="!this.play_url"></canvas>
           <!-- <Control :play_url='play_url'/> -->
           <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
           <br/>
-          <Control class="controlPlce" :show='test' @close='closed' :play_url='play_url'/>
+          <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/>
           <!-- <button  @click="click1">切换</button>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <button @click='axios'>获取URL地址</button>
@@ -40,6 +40,9 @@ export default {
       loadTwoShow:true,
       //作用  返回时候 控制init() 里的thz.axios()不执行
       keng:true,
+      //截获 播放时候 可以录制 传给Control 一个非空 做判断
+      control:'',
+      
     };
   },
   components: {
@@ -96,6 +99,13 @@ export default {
         if(Object.prototype.toString.call(message.data).indexOf("String")>0){
           console.log('有数据 String进来了')
             let cmd = JSON.parse(message.data);
+            console.log('cmd',cmd)
+            console.log('第一次录制的channel_id',cmd.channel_id);
+
+            sessionStorage.setItem("channel_name", cmd.channel_name); 
+            sessionStorage.setItem("channel_id", cmd.channel_id);
+
+            console.log('录制-------------------------的数据',cmd.channel_name,cmd.channel_id)
             if(cmd.cmd === "stop_play_replay"){
               this.keng = false
               this.play_url = "", 
@@ -131,21 +141,7 @@ export default {
           let u = URL.createObjectURL(blob);
           img.src = u;
         } else {
-          // console.log("获取的东西", message);
-          // let obj = JSON.parse(message.data);
-          // if (obj.cmd == "single_media") {            
-          //   console.log("play_url---obj", message.data);
-          //   console.log("play_url", obj.play_url);
-          //   console.log("play_url", typeof obj.play_url);
-          //   switch (obj.cmd) {
-          //     case "single_media":
-          //       thz.play_url = obj.play_url;
-          //       break;
-          //     default:
-          //       break;
-          //   }
-          // }
-        // console.log('this.keng3号',thz.keng)
+
           if(thz.keng){
           thz.axios()
           }
@@ -169,8 +165,47 @@ export default {
           console.log("data.ret.code-onmessage", data.ret.code);
           //判断1、data.ret.code === 0 有任务
           if (data.ret.code === 0) {
+            //调用接口 获取 播放的信息
+            let obj = {
+              	"play_url":data.data.play_url
+            }
+            thz.axio.post('/channel/get_single_media_status',obj)
+            .then(res=>{
+              // let oldRecord_id = sessionStorage.getItem('record_id')
+              let record_id = res.data.record_id
+              let channel_id = res.data.channel_id
+              let channel_name = res.data.channel_name
+              sessionStorage.setItem("channel_name", channel_name); 
+              sessionStorage.setItem("channel_id", channel_id);
+              // console.log('***********************',oldRecord_id,record_id,oldRecord_id===record_id)
+              // console.log('***********************',oldRecord_id==record_id)
+              //record_id 为空  可以录制
+              if(!record_id){
+                  console.log('record_id------------为空',record_id)
+                  console.log('第2次录制的channel_id',channel_id)
+              // }else if(oldRecord_id === record_id){
+                 
+              //     return null
+              }
+              else{
+                  sessionStorage.setItem("record_id", record_id);
+                  console.log('第3次录制的channel_id',channel_id)
+                  thz.control = '初始化'
+                  console.log('record_id------------不为空',record_id,thz.control)
+                  
+              }
+            })
+            .catch(err=>{
+              console.log('err',err)
+            })
+
             //判断2、是否可以播放
             if (data.data.play_status) {
+
+              //本地临时存储 设备ID 和 播放地址
+              sessionStorage.setItem("input_url", data.data.play_url);
+              sessionStorage.setItem("device_id", thz.id);
+
               console.log("加载 定时间是什么  true----------onmessage", thz.time);
               thz.loadTwoShow = false
               thz.loadShow = false
@@ -246,8 +281,7 @@ export default {
         }
   },
   beforeDestroy(){
-    this.time=null
-    this.time1=null
+    //销毁定时器
     this.time2=null
     this.time3=null
   },
