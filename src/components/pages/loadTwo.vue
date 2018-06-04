@@ -32,8 +32,8 @@
 <style scoped>
 .laod{
     position: relative;
-    width: 642px;
-    height: 362px;
+    width: 800px;
+    height: 450px;
     border: 1px solid red;
     background-color: black;
 }

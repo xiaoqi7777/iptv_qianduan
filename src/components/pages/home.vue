@@ -17,7 +17,7 @@
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <button @click='axios'>获取URL地址</button>
           <span @click="test1">测试</span> -->
-          <br/><br/><br/><br/><br/>
+
         </div>
     </div>
       
@@ -201,7 +201,7 @@ export default {
 
             //判断2、是否可以播放
             if (data.data.play_status) {
-
+              console.log('可以播放---------------------')
               //本地临时存储 设备ID 和 播放地址
               sessionStorage.setItem("input_url", data.data.play_url);
               sessionStorage.setItem("device_id", thz.id);
@@ -253,15 +253,15 @@ export default {
     }
   },
   created(){
-
+        let thz =this
         this.$root.connect = (function(){
-          var ws = new WebSocket("ws://192.168.1.192:3002",'minicap');
+          var ws = new WebSocket("ws://47.96.129.127:3002",'minicap');
           ws.binaryType = 'blob'
           console.log('第一次连接*********')
           ws.onopen = function()
           {
             // Web Socket 已连接上，使用 send() 方法发送数据
-            ws.send( JSON.stringify({"cmd":"login","type":"web","device_id":6}));
+            ws.send( JSON.stringify({"cmd":"login","type":"web","device_id":thz.id}));
             console.log("数据发送中1...");
           };
           ws.onclose = function() {
@@ -317,7 +317,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .controlPlce{
-  bottom: 130px;
+  bottom: -10px;
 }
 h1,
 h2 {

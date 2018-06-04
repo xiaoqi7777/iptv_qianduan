@@ -69,6 +69,9 @@ export default {
 };
 </script>
 <style>
+/* .vjs-control-bar .vjs-progress-control{
+  visibility: hidden;
+} */
 .video-js .vjs-big-play-button {
   border-color: green;
   top: 0;

@@ -11,11 +11,11 @@
     <div>
 			<el-form :inline="true" ref="filters" class="demo-form-inline toolbar" :model="filters">
           <el-form-item>
-            <el-input v-model="filters.name" placeholder="文件名称"></el-input>
+            <el-input v-model="filters.name" placeholder="频道/点播名称"></el-input>
           </el-form-item>
-          <el-form-item>
+          <!-- <el-form-item>
             <el-input v-model="filters.user_name" placeholder="录制人"></el-input>
-          </el-form-item>
+          </el-form-item> -->
 				<el-form-item>
 					<el-button class="device_toolbtn device_search" @click="getDibblingList"></el-button>
 				</el-form-item>
@@ -79,6 +79,7 @@
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage"
         layout="prev, pager, next"
+        :page-size='8'        
         :total="totalPage"
         >
       </el-pagination>
@@ -138,7 +139,9 @@
           .then((response) => {
             if(response.data.ret.code === 0) {
               this.currentPage = 1
+
               this.totalPage = response.data.data.total
+                            console.log('******1********',this.totalPage)
               this.tableData = response.data.data.res
             }
           })
