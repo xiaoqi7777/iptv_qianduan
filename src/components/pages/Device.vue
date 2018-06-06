@@ -74,7 +74,7 @@
             :resizable="false"
             width="280">
               <template slot-scope="scope">
-                <el-tooltip class="item" effect="dark" content="远程监看" placement="top-start" >
+                <el-tooltip class="item" effect="dark" content="监看" placement="top-start" >
                   <el-button
                   size="small"
                   class="table_list_btn " :class="scope.row.status==='offline'?'control':'controlL'"
@@ -116,7 +116,7 @@
         </el-pagination>
 
         <el-dialog
-          :title="`远程控制的设备：${nameId}`"
+          :title="`终端设备：${nameId}`"
           :visible.sync="dialogVisible"
           :close-on-click-modal="false"
           @close="close"          
@@ -133,8 +133,10 @@
     </div>
     <DeviceDialog :device="device_id" v-if="dialogStatus" @updateTable="updateHandle" :show.sync="dialogStatus"></DeviceDialog>
     <SSHDialog :device="device" v-if="sshDialog" :show.sync="sshDialog"></SSHDialog>
+
   </section>
 </template>
+
 
 <script>
 
@@ -153,6 +155,7 @@
     },
     data () {
       return {
+        show: true,
         //设备ID
         id:'',
         isShow:false,
@@ -187,6 +190,7 @@
       }
     },
     methods: {
+
       close(){
         // 用v-if 关闭 远程控制的设备： 的el-dialog  不然里面的东西还会存在 报错
         this.isShow = this.$refs.play.test1()
@@ -283,13 +287,19 @@
 </script>
 
 <style>
+
+
+
 /* 处理默认样式 */
   .el-dialog{
-    min-width: 846px !important;
+    min-width: 1140px !important;
     padding-bottom:0px
   }
   .el-dialog__body {
-    padding: 7px 20px;
+    padding: 7px 28px;
+  }
+  .el-dialog__body span{
+    display: inline-block;
   }
   .el-dialog__footer{
     padding: 7px;

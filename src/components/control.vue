@@ -1,51 +1,40 @@
 <template>
     <div :class="$style.list"  ref="control">
 
-        <article    ref="moveTwo" v-if="show">
+        <article    ref="moveTwo" v-show="show">
                 <section   :class="$style.left">
                     <ul :class="$style.ul">
-                        <li  @mousedown.stop="onClick(19,$event)"  @mouseup="onUp($event)" ></li>
-                        <li  @mousedown.stop="onClick(20,$event)"  @mouseup="onUp($event)"></li>
-                        <li  @mousedown.stop="onClick(23,$event)"  @mouseup="onUp($event)"></li>
-                        <li  @mousedown.stop="onClick(21,$event)"  @mouseup="onUp($event)"></li>
-                        <li  @mousedown.stop="onClick(22,$event)"  @mouseup="onUp($event)"></li>
+                        <li  @mousedown.stop="onClick(19)">1</li>
+                        <li  @mousedown.stop="onClick(20)">2</li>
+                        <li  @mousedown.stop="onClick(23)">3</li>
+                        <li  @mousedown.stop="onClick(21)">4</li>
+                        <li  @mousedown.stop="onClick(22)">5</li>
                     </ul>
                 </section >
                 <section  :class="$style.right">
                     <ul :class="$style.ul">
-                        <li @mousedown.stop="onClick(0,$event)" @mouseup="onUp($event)"></li>
-                        <li @mousedown.stop="onClick(4,$event)" @mouseup="onUp($event)"></li> 
+                        <li @mousedown.stop="onClick(1)">菜单</li>
+                        <li @mousedown.stop="onClick(4)">返回</li> 
                     </ul>
                 </section>
         </article>
 
 
-        <article    ref="moveTwo" v-if="!show">
+        <article    ref="moveTwo" v-show="!show">
                 <section   :class="$style.left1">
                     <ul :class="$style.ul">
-                        <li  ></li>
-                        <li  ></li>
-                        <li  ></li>
-                        <li  ></li>
-                        <li  ></li>
+                        <li  >1</li>
+                        <li  >2</li>
+                        <li  >3</li>
+                        <li  >4</li>
+                        <li  >5</li>
                     </ul>
                 </section >
                 <section  :class="$style.right1">
                     <ul :class="$style.ul">
-                        <el-tooltip class="item" effect="dark" content="录制" placement="bottom" v-if="!record_id">
-                          <li :class='$style.recording1'  @click.stop="handleRecording" ></li> 
-                        </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="录制中" placement="bottom" v-if="record_id">
-                          <li :class='$style.recording2'  @click.stop="handleRecorded" ></li> 
-                        </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="停止播放" placement="bottom"  v-if="!record_id">
-                          <li :class='$style.pause' @click.stop="pause"></li>
-                        </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="请先停止录制" placement="bottom" v-if="record_id">
-                          <li :class='$style.pause2'  ></li>
-                        </el-tooltip>
-                         
-                         
+                        <li :class='$style.recording1'  @click.stop="handleRecording" v-if="!record_id">录制</li> 
+                        <li :class='$style.recording2'  @click.stop="handleRecorded" v-if="record_id">停止</li>
+                        <li :class='$style.pause' @click.stop="pause">停止<br/>播放</li> 
                     </ul>
                 </section>
         </article>
@@ -112,14 +101,13 @@ export default {
     handleRecording(done) {
         this.$confirm('确认录制？')
           .then(()=> {
-           this.recording()
-
-              this.$message({
-                message:'录制已开启',
-                type: 'success',
-                center:true
-              });
-
+            console.log('确认11111111111111录制')  
+            this.$message({
+              message:'录制已开启',
+              type: 'success',
+              center:true
+            });
+            this.recording()
           })
           .catch(() => {
             this.$message({
@@ -133,29 +121,13 @@ export default {
     onReset() {
       console.log("暂停");
     },
-    onUp(e){
-      let left = e.path[0].offsetLeft
-      let top = e.path[0].offsetTop
-      e.path[0].style.left = left - 2 +'px'
-      e.path[0].style.top = top - 2 +'px'
-      console.log('onUp')
-      
-    },
     onClick(key_code, e) {
-      let left = e.path[0].offsetLeft
-      let top = e.path[0].offsetTop
-      e.path[0].style.left = left + 2 +'px'
-      e.path[0].style.top = top + 2 +'px'
-      // console.log("onClick", e);
+      console.log("ss", key_code);
       //    this.send( key_code)
-      console.log('按下')
-      
       this.$root.test_1()
       this.$root.send({ cmd: "key", code: key_code });
     },
-    onStop(){
-      console.log('抬起')
-    },
+   
     pause() {
       console.log('停止播放----------')
         let obj = {
@@ -163,7 +135,7 @@ export default {
           play_url: this.play_url
         };
 
-        this.$confirm('请确认退出播放？')
+        this.$confirm('请确认是否停止录制？')
           .then(()=> {
             //消除本地 存储
             sessionStorage.removeItem('channel_name');
@@ -189,7 +161,6 @@ export default {
 
     //开启录制方法
     recording(){
-      let isSuccess=''
       //获取本地 传递的录制信息
       this.channel_name = sessionStorage.getItem("channel_name");
       this.channel_id =Number(sessionStorage.getItem("channel_id"));
@@ -218,20 +189,15 @@ export default {
             if(res.data.ret.code === 0){
               console.log('开启录制成功',res.data.data.record_id)
               thz.record_id = res.data.data.record_id
-              isSuccess = res.data.ret.code
             }else{
               console.log('开启录制失败',res.data.ret.cn)
-              isSuccess = res.data.ret.code
             }
          
           })
           .catch(err=>{
             console.log('开启录制失败',err)
-            return 333
           })
         this.isShow = false
-          return isSuccess
-        
     },
 
     //停止录制
@@ -379,18 +345,18 @@ export default {
       background-size:contain;
       background-repeat:no-repeat;
       width: 1rem;
-      height: 0.5rem;
+      height: 1rem;
       left: 0.35rem;
-      bottom: 0.5rem;
+      bottom: 0rem;
 }
 .right .ul li:nth-child(2) {
       background-image: url(../../assets/images/icon_back.png) ;
       background-size:contain;
       background-repeat:no-repeat;
       width: 1rem;
-      height: 0.5rem;
+      height: 1rem;
       left: 1.5rem;
-      bottom: 0.5rem;
+      bottom: 0rem;
 }
 
 
@@ -402,7 +368,6 @@ export default {
 .left1 li{
   position: absolute;
 }
-
 /* 上下左右方向 .left  */
 .left1 li:nth-child(1) {
       background-image: url(../../assets/images/icon_up_d.png) ;
@@ -412,7 +377,6 @@ export default {
       height: 0.5rem;
       left: 0.82rem;
       top: 0.86rem;
-      transition: width 1s
 }
 
 .left1 li:nth-child(2) {
@@ -456,62 +420,24 @@ export default {
       transform:rotate(5deg);
       
 }
-.left1 li{
-  position: absolute;
-}
+
 
 .right1 li{
   position: absolute;
 }
-.right1  li:nth-child(1) {
+.right1 .ul2 li:nth-child(1) {
   color: green;
   left: 40px;
   top:  13px;
+  padding: 15px;
 }
-.right1  li:nth-child(2) {
+.right1 .ul2 li:nth-child(2) {
     color: green;
     left: 40px;
     top: 84px;
+    padding: 3px 15px;
 }
 
-.right1  .ul .recording1 {
-  background-image: url(../../assets/images/icon_rc.png);
-  background-size: contain;
-  width: 100px;
-  height: 50px;
-  background-repeat:no-repeat;
-  left: 0.3rem;
-  top:  3.5rem;
 
-}
-.right1 .ul .recording2 {
-  background-image: url(../../assets/images/icon_rc_d.png);
-  background-size: contain;
-  width: 100px;
-  height: 50px;
-  background-repeat:no-repeat;
-  left: 0.3rem;
-  top:  3.5rem;
-
-}
-.right1 .ul .pause {
-  background-image: url(../../assets/images/icon_ps.png);
-  background-size: contain;
-  width: 100px;
-  height: 50px;
-  background-repeat:no-repeat;
-  left: 1.5rem;
-  top:  3.5rem;
-}
-
-.right1 .ul .pause2 {
-  background-image: url(../../assets/images/icon_ps_d.png);
-  background-size: contain;
-  width: 100px;
-  height: 50px;
-  background-repeat:no-repeat;
-  left: 1.5rem;
-  top:  3.5rem;
-}
 
 </style>

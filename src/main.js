@@ -28,6 +28,7 @@ Vue.prototype.axio = axios.create({
 
 // axios拦截器(request)
 Vue.prototype.axio.interceptors.request.use(function(config){
+  console.log('config',config)
   //在请求发出之前进行一些操作
   if(sessionStorage.token) {
     config.headers.Authorization = 'Bearer ' + sessionStorage.token

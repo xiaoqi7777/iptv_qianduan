@@ -1,18 +1,23 @@
 <template>
-  <div>
+  <div class="homeHeight">
     <!-- 初次加载中 -->
      <LoadTwo v-show='loadTwoShow' />
-
+    
     <Load v-show='loadShow'/>
    
 
     <div v-show="!loadTwoShow">
         <div class="hello" v-show='!loadShow'> 
-          <canvas id="canvas"  v-show="!this.play_url"></canvas>
+          <div class="videoHeight">
+            <canvas id="canvas"  v-show="!this.play_url"></canvas>
+            <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
+          </div>
+          <div class="controlHeight">
+            <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/>
+          </div>
           <!-- <Control :play_url='play_url'/> -->
-          <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
-          <br/>
-          <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/>
+          <!-- <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/> -->
+          
           <!-- <button  @click="click1">切换</button>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <button @click='axios'>获取URL地址</button>
@@ -85,7 +90,8 @@ export default {
         //console.log('cs',e)
       };
       let thz = this;
-      
+      // this.$root.send({ cmd: "key", code: 4 })
+              
       this.$root.connect.onmessage = function(message) {
         //websock接收数据
        thz.loadTwoShow = false
@@ -164,7 +170,7 @@ export default {
           console.log("URL-onmessage", data.data);
           console.log("data.ret.code-onmessage", data.ret.code);
           //判断1、data.ret.code === 0 有任务
-          if (data.ret.code === 0) {
+          if (data.ret.code === 0 && data.data.play_url) {
             //调用接口 获取 播放的信息
             let obj = {
               	"play_url":data.data.play_url
@@ -314,10 +320,34 @@ export default {
 };
 </script>
 
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.controlPlce{
+
+/* .controlPlce{
   bottom: -10px;
+} */
+/* .hello{
+  display: flex;
+  flex-direction:row 
+} */
+.homeHeight{
+  width: 1090px;
+  
+}
+.hello{
+  position: relative;
+  width: 1090px;
+}
+
+.videoHeight{
+  display: inline-block;
+  
+    width: 800px;
+  height: 450px;
+}
+.controlHeight{
+  display: inline-block;
 }
 h1,
 h2 {

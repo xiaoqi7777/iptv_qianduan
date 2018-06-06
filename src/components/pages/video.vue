@@ -1,7 +1,8 @@
 <template>
-    <div >
-        <section >
+    <div class="item">
+        <section class="player">
             <videoPlayer
+                class="vjs-custom-skin" 
                 :options="playerOptions"
             >
             </videoPlayer>
@@ -10,6 +11,7 @@
 </template>
 
 <script>
+import './custom-theme.css'
 import "video.js/dist/video-js.css";
 import "video.js";
 import { videoPlayer } from "vue-video-player";
@@ -29,7 +31,7 @@ export default {
         autoplay:true,
         muted: true,
         height: 450,
-        width: 600,
+        width: 800,
         language: "en",
         playbackRates: [0.7, 1.0, 1.5, 2.0],
         techOrder: ["flash"],
@@ -69,9 +71,22 @@ export default {
 };
 </script>
 <style>
-/* .vjs-control-bar .vjs-progress-control{
+.vjs-control-bar{
+  position: relative;
+}
+.vjs-control-bar .vjs-progress-control{
   visibility: hidden;
-} */
+}
+.vjs-control-bar .vjs-time-divider{
+  visibility: hidden;
+}
+.vjs-control-bar .vjs-duration-display{
+  visibility: hidden;  
+}
+.vjs-control-bar .vjs-current-time{
+  position: absolute;
+  right: 0.5rem;
+}
 .video-js .vjs-big-play-button {
   border-color: green;
   top: 0;
@@ -80,6 +95,7 @@ export default {
   bottom: 0;
   margin: auto;
 }
+
 </style>
 
 
@@ -89,3 +105,4 @@ export default {
   height: 130px;
 }
 </style>
+
