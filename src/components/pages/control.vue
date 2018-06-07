@@ -310,7 +310,7 @@ export default {
     background-image: url(../../assets/images/bg.png) ;
     background-size:contain;
     background-repeat:no-repeat;
-    width: 2.8rem;
+    width: 2.77rem;
     height: 4.5rem;
 }
 

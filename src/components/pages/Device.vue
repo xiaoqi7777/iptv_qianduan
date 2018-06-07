@@ -122,24 +122,19 @@
           @close="close"          
           width="688px"
           :before-close="handleClose" >
-          <span>
+          <section>
               <Home v-if='isShow' ref="play" :id='id'/>
-          </span>
-          <span slot="footer" class="dialog-footer">
-            
-          </span>
+          </section>
         </el-dialog>
 
     </div>
     <DeviceDialog :device="device_id" v-if="dialogStatus" @updateTable="updateHandle" :show.sync="dialogStatus"></DeviceDialog>
     <SSHDialog :device="device" v-if="sshDialog" :show.sync="sshDialog"></SSHDialog>
-
   </section>
 </template>
 
 
 <script>
-
   import DeviceDialog from './DeviceDialog.vue'
   import SSHDialog from './SSHDialog.vue'
   import Home from './home'
@@ -296,10 +291,7 @@
     padding-bottom:0px
   }
   .el-dialog__body {
-    padding: 7px 28px;
-  }
-  .el-dialog__body span{
-    display: inline-block;
+    padding: 1px 32px  17px;
   }
   .el-dialog__footer{
     padding: 7px;

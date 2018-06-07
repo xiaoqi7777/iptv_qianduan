@@ -332,22 +332,24 @@ export default {
   flex-direction:row 
 } */
 .homeHeight{
-  width: 1090px;
+  width: 1077px;
   
 }
 .hello{
   position: relative;
-  width: 1090px;
+  width: 1077px;
+  font-size: 0px;
 }
 
 .videoHeight{
   display: inline-block;
-  
-    width: 800px;
+  width: 800px;
   height: 450px;
+  font-size: 14px;
 }
 .controlHeight{
   display: inline-block;
+  font-size: 14px;
 }
 h1,
 h2 {

@@ -32,7 +32,7 @@
 <style scoped>
 .laod{
     position: relative;
-    width: 1090px;
+    width: 1080px;
     height: 457px;
     background-color: black;
 }
