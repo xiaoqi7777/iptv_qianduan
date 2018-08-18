@@ -12,12 +12,12 @@ Vue.prototype.soft_version = soft_version
 
 
 
-
+// 14.110.9.135:3000
 
 Vue.use(ElementUI);
 let url = '' 
 if (process.env.NODE_ENV == 'development') {
-  url = 'http://47.96.129.127:3000/api/v1'
+  url = 'http://192.168.1.163:3000/api/v1'
 }else {
   url = window.location.protocol + '//' + window.location.host + '/api/v1'
 }

@@ -187,9 +187,8 @@
     methods: {
       close(){
         // 用v-if 关闭 远程控制的设备： 的el-dialog  不然里面的东西还会存在 报错
-        this.isShow = false
-        //  console.log('ref*****************************ref',this.$refs.play.test1()) 
-        console.log('close******************')
+        this.isShow = this.$refs.play.test1()
+         console.log('ref*****************************ref',this.$refs.play.test1()) 
       },
       dialogVisibles(boolean,item){
         this.id = item.id

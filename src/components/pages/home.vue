@@ -1,5 +1,6 @@
 <template>
   <div class="homeHeight">
+
     <!-- 初次加载中 -->
      <LoadTwo v-show='loadTwoShow' />
     
@@ -9,11 +10,11 @@
     <div v-show="!loadTwoShow">
         <div class="hello" v-show='!loadShow'> 
           <div class="videoHeight">
-            <canvas id="canvas"  v-show="!this.play_url"></canvas>
+            <canvas id="canvas"  width="800" height="450" v-show="!this.play_url"></canvas>
             <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
           </div>
           <div class="controlHeight">
-            <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/>
+            <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url' :io="this.io"/>
           </div>
           <!-- <Control :play_url='play_url'/> -->
           <!-- <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/> -->
@@ -31,23 +32,27 @@
 <script>
 import Control from "./control";
 import Video from "./video";
-import Load from './load';
-import LoadTwo from './loadTwo';
+import Load from "./load";
+import LoadTwo from "./loadTwo";
+import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
-  props:['id'],
+  props: ["id"],
   data() {
     return {
-      loadShow:false,
+      loadShow: false,
       test: false,
       play_url: "",
+      play_name: "",
       cs: "1",
-      loadTwoShow:true,
+      loadTwoShow: true,
       //作用  返回时候 控制init() 里的thz.axios()不执行
-      keng:true,
+      keng: true,
       //截获 播放时候 可以录制 传给Control 一个非空 做判断
-      control:'',
-      
+      control: "",
+      io: null,
+
+      mediaCode: null
     };
   },
   components: {
@@ -64,7 +69,6 @@ export default {
         } else {
           this.test = true;
         }
-
       },
       immediate: true
     }
@@ -72,282 +76,203 @@ export default {
   methods: {
     //初始化界面init
     init() {
-      this.$root.connect
-      console.log('页面初始化')
-      var BLANK_IMG ="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+      // this.$root.connect
+      console.log("页面初始化", this.io);
+      var BLANK_IMG =
+        "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
       var canvas = document.getElementById("canvas"),
-      g = canvas.getContext("2d");
+        g = canvas.getContext("2d");
       //获取点击位子
       canvas.onclick = function(e) {
         eventX = e.clientX;
         eventY = e.clientY;
         x = eventX - canvas.offsetLeft;
         y = eventY - canvas.offsetTop;
-        console.log("x:" + x + " y:" + y);
       };
-      document.onclick = function(e) {
-        //console.log('cs',e)
-      };
+      document.onclick = function(e) {};
       let thz = this;
       // this.$root.send({ cmd: "key", code: 4 })
-              
-      this.$root.connect.onmessage = function(message) {
-        //websock接收数据
-       thz.loadTwoShow = false
-        // Object.prototype.toString.call 判断类型
-        // console.log('this.keng1号',thz.keng)
 
-        console.log(
-          "onmessage111",
-          Object.prototype.toString.call(message.data)
-        );
-        if(Object.prototype.toString.call(message.data).indexOf("String")>0){
-          console.log('有数据 String进来了')
-            let cmd = JSON.parse(message.data);
-            console.log('cmd',cmd)
-            console.log('第一次录制的channel_id',cmd.channel_id);
+      // this.$root.connect.onmessage = function(message)
+      let cvs = document.getElementById("canvas");
+      let img = new Image();
 
-            sessionStorage.setItem("channel_name", cmd.channel_name); 
-            sessionStorage.setItem("channel_id", cmd.channel_id);
+      thz.io.on("img", message => {
+        thz.loadTwoShow = false;
+        img.src = `data:image/jpeg;base64,${message.value}`;
 
-            console.log('录制-------------------------的数据',cmd.channel_name,cmd.channel_id)
-            if(cmd.cmd === "stop_play_replay"){
-              this.keng = false
-              this.play_url = "", 
-              console.log('进来了',this.play_url)
-              return;            
-            }
-            console.log('mes**********************sage',cmd)
-        }
-        
-        
-        // console.log('mes+++++++++++++++++++sage',cmd)
-        // 判断传进来的是否是流或者别的
-        if (Object.prototype.toString.call(message.data).indexOf("Blob") > 0) {
-          //console.log('Blob') //是流
-          thz.keng = true
-        // console.log('this.keng2号',thz.keng)
-          
-          let blob = new Blob([message.data], { type: "image/jpeg" });
-          let URL = window.URL || window.webkitURL;
-          let img = new Image();
-          img.onload = function() {
-            // console.log("onload222");
-            //console.log(img.width, img.height)
-            canvas.width = img.width;
-            canvas.height = img.height;
-            g.drawImage(img, 0, 0);
-            img.onload = null;
-            img.src = BLANK_IMG;
-            img = null;
-            u = null;
-            blob = null;
+        let dat = message.date;
+        img.onload = function() {
+          var ctx = cvs.getContext("2d");
+          ctx.drawImage(img, 0, 0, 800, 450);
+          console.log("onload结束");
+        };
+
+        this.io.on("single_media_play_url", message => {
+          let thz = this;
+          let id = thz.id;
+          let testFn = () => {
+            thz.axio
+              .post("/device/get_single_media_task_status", { device_id: id })
+              .then(function(res) {
+                clearInterval(thz.time);
+                console.log("----------------res", res.data.data.play_status);
+                if (res.data.data.play_status) {
+                  thz.play_url = message.play_url;
+                  thz.play_name = message.channel_name;
+                } else {
+                  clearInterval(thz.time);
+                  console.log("加载");
+                  // thz.loadTwoShow = false;
+                  // thz.loadShow = true;
+                  thz.time = setInterval(function() {
+                    testFn();
+                  },1000);
+                }
+              });
           };
-          let u = URL.createObjectURL(blob);
-          img.src = u;
-        } else {
+          testFn()
+        });
+      });
+      this.io.on("start_task_error", data => {
+        console.log("不能播放的错误提示", data.msg);
+      });
+    },
+    test1() {
+      console.log("测试成功");
+    },
 
-          if(thz.keng){
-          thz.axios()
-          }
-        }
-      };
-    },
-    test1(){
-      console.log('测试成功')
-    },
-    //点击时候触发播放 在进行判断 是播放  还是初始化canvans
-    axios() {
+    //找后端 查询 盒子的状态是啥
+    mediaStatus() {
       let thz = this;
-      let id = this.id;
-      //找后端 查询 盒子的状态是啥
-      this.axio
+      let id = thz.id;
+      thz.axio
         .post("/device/get_single_media_task_status", { device_id: id })
         .then(function(res) {
           let data = res.data;
-          console.log("res-onmessage", data);
-          console.log("URL-onmessage", data.data);
-          console.log("data.ret.code-onmessage", data.ret.code);
-          //判断1、data.ret.code === 0 有任务
-          if (data.ret.code === 0 && data.data.play_url) {
-            //调用接口 获取 播放的信息
-            let obj = {
-              	"play_url":data.data.play_url
-            }
-            thz.axio.post('/channel/get_single_media_status',obj)
-            .then(res=>{
-              // let oldRecord_id = sessionStorage.getItem('record_id')
-              let record_id = res.data.record_id
-              let channel_id = res.data.channel_id
-              let channel_name = res.data.channel_name
-              sessionStorage.setItem("channel_name", channel_name); 
-              sessionStorage.setItem("channel_id", channel_id);
-              // console.log('***********************',oldRecord_id,record_id,oldRecord_id===record_id)
-              // console.log('***********************',oldRecord_id==record_id)
-              //record_id 为空  可以录制
-              if(!record_id){
-                  console.log('record_id------------为空',record_id)
-                  console.log('第2次录制的channel_id',channel_id)
-              // }else if(oldRecord_id === record_id){
-                 
-              //     return null
-              }
-              else{
-                  sessionStorage.setItem("record_id", record_id);
-                  console.log('第3次录制的channel_id',channel_id)
-                  thz.control = '初始化'
-                  console.log('record_id------------不为空',record_id,thz.control)
-                  
-              }
-            })
-            .catch(err=>{
-              console.log('err',err)
-            })
+          thz.mediaCode = data.ret.code;
+          console.log("查询 盒子的状态", data);
+          if (data.data) {
+            thz.play_url = data.data.play_url;
+          }
 
+          //判断1、data.ret.code === 0 有任务
+          if (thz.mediaCode === 0 && thz.play_url) {
+            thz.recordStatus();
             //判断2、是否可以播放
             if (data.data.play_status) {
-              console.log('可以播放---------------------')
+              console.log("可以播放---------------------");
               //本地临时存储 设备ID 和 播放地址
-              sessionStorage.setItem("input_url", data.data.play_url);
+              sessionStorage.setItem("input_url", thz.play_url);
               sessionStorage.setItem("device_id", thz.id);
 
-              console.log("加载 定时间是什么  true----------onmessage", thz.time);
-              thz.loadTwoShow = false
-              thz.loadShow = false
+              thz.loadTwoShow = false;
+              thz.loadShow = false;
               clearInterval(thz.time);
               thz.play_url = data.data.play_url;
             } else {
               //判断3、加载中
               clearInterval(thz.time);
               console.log("加载");
-              thz.loadTwoShow = false              
-              thz.loadShow = true
+              thz.loadTwoShow = false;
+              thz.loadShow = true;
               thz.time = setInterval(function() {
                 thz.axios();
               }, 1000);
-              console.log("加载 定时间是什么 false----------onmessage", thz.time);
             }
           } else {
-            //判断4、没有任务
-            console.log("正常播放主页面");
-            
+            //否则没有任务,初始化页面
             thz.init();
-            
           }
-      //  console.log('页面初次加载 没有定时器',thz.play_url) 
-        
+        });
+    },
+    recordStatus() {
+      let thz = this;
+      let obj = {
+        play_url: thz.play_url
+      };
+      thz.axio
+        .post("/channel/get_single_media_status", obj)
+        .then(res => {
+          // let oldRecord_id = sessionStorage.getItem('record_id')
+          let record_id = res.data.record_id;
+          let channel_id = res.data.channel_id;
+          let channel_name = res.data.channel_name;
+          sessionStorage.setItem("channel_name", channel_name);
+          sessionStorage.setItem("channel_id", channel_id);
+
+          //record_id 为空  可以录制
+          if (!record_id) {
+            console.log("第2次录制的channel_id", channel_id);
+          } else {
+            sessionStorage.setItem("record_id", record_id);
+            console.log("第3次录制的channel_id", channel_id);
+            thz.control = "初始化";
+          }
         })
         .catch(err => {
           console.log("err", err);
         });
+    },
 
-    },
-    //测试用
-    click1() {
-      this.test = !this.test;
-      console.log("this.test", this.test);
-    },
-    //播放器 关闭的子传父 
+    // //测试用
+    // click1() {
+    //   this.test = !this.test;
+    //   console.log("this.test", this.test);
+    // },
+    //播放器 关闭的子传父
     closed() {
       console.log("closed触发");
-      this.loadTwoShow = true
-      this.keng = false
-      this.play_url = "", 
-      this.init()
-      this.$root.send({ cmd: "key", code: 4 });
+      this.loadTwoShow = true;
+      this.keng = false;
+      (this.play_url = ""), this.init();
+      // this.$root.send({ cmd: "key", code: 4 });
+    },
+    initIo() {
+      this.io = socketIo("ws://192.168.1.163:3000", {
+        query: { token: "00E04C644323", client_type: "web" }
+      });
     }
   },
-  created(){
-        let thz =this
-        this.$root.connect = (function(){
-          var ws = new WebSocket("ws://47.96.129.127:3002",'minicap');
-          ws.binaryType = 'blob'
-          console.log('第一次连接*********')
-          ws.onopen = function()
-          {
-            // Web Socket 已连接上，使用 send() 方法发送数据
-            ws.send( JSON.stringify({"cmd":"login","type":"web","device_id":thz.id}));
-            console.log("数据发送中1...");
-          };
-          ws.onclose = function() {
-            console.log('onclose', arguments)
-          }
-          ws.onerror = function() {
-            console.log('onerror', arguments)
-          }
-          return ws
-        })()
 
-        this.$root.send = function(num){
-          let thz =  this.$root.connect
-          console.log('num',num)
-          thz.send( JSON.stringify(num));       
-          console.log("数据发送中2...");
-        }
-  },
-  beforeDestroy(){
+  beforeDestroy() {
+    this.io.close();
     //销毁定时器
-    this.time2=null
-    this.time3=null
+    this.time2 = null;
+    this.time3 = null;
   },
   mounted() {
+    console.log("home------->");
+    //查询盒子状态
+    this.mediaStatus();
     //canvans初始化
-    //  this.init();
-     this.$root.test_1 = this.init
-     this.axios()
-      //页面初次加载
-   
-      if(!this.play_url){
-            console.log('页面初次加载 有定时器')
-              // this.time=setTimeout(() => {
-              // this.$root.send({ cmd: "key", code: 22 })
-              // }, 10);
-
-              // this.time1=setTimeout(() => {
-              // this.$root.send({ cmd: "key", code: 21 })
-              // }, 20);
-
-              this.time2=setTimeout(() => {
-              this.$root.send({ cmd: "key", code: 20 })
-              }, 30);
-
-              this.time3=setTimeout(() => {
-              this.$root.send({ cmd: "key", code: 19 })
-              }, 40);
-          }
+    if (!this.io) {
+      console.log("io初始化*****************************");
+      this.initIo();
+    }
   }
 };
 </script>
 
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-/* .controlPlce{
-  bottom: -10px;
-} */
-/* .hello{
-  display: flex;
-  flex-direction:row 
-} */
-.homeHeight{
+.homeHeight {
   width: 1077px;
-  
 }
-.hello{
+.hello {
   position: relative;
   width: 1077px;
   font-size: 0px;
 }
 
-.videoHeight{
+.videoHeight {
   display: inline-block;
   width: 800px;
   height: 450px;
   font-size: 14px;
 }
-.controlHeight{
+.controlHeight {
   display: inline-block;
   font-size: 14px;
 }

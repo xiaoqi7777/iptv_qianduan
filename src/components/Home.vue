@@ -195,5 +195,7 @@
     .logout_css {
         background-image: url('../assets/icon_logout.png');
     }
-  
+    .el-menu{
+      border-right: 0px;
+    }
 </style>

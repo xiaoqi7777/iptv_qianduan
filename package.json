@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.3.3",
+    "socket.io-client": "^2.1.1",
     "videojs-contrib-hls": "^5.14.1",
     "videojs-flash": "^2.1.0",
     "vue": "^2.5.2",
