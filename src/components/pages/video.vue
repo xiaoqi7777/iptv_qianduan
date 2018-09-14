@@ -35,7 +35,7 @@ export default {
         language: "en",
         playbackRates: [0.7, 1.0, 1.5, 2.0],
         techOrder: ["flash"],
-        poster: "/static/images/author.jpg",
+        // poster: "/static/images/author.jpg",
         dataSetup: "{}",
         sources: [
           {

@@ -17,7 +17,9 @@ Vue.prototype.soft_version = soft_version
 Vue.use(ElementUI);
 let url = '' 
 if (process.env.NODE_ENV == 'development') {
-  url = 'http://192.168.1.163:3000/api/v1'
+  url = 'http://192.168.1.173:3000/api/v1'
+  // url = 'http://47.96.129.127:3000/api/v1'
+
 }else {
   url = window.location.protocol + '//' + window.location.host + '/api/v1'
 }
@@ -26,9 +28,16 @@ Vue.prototype.axio = axios.create({
 })
 
 
+Vue.prototype.axio.interceptors.request.use(function (config) {
+
+return config
+}, function (err) {
+  return Promise.reject(err)
+})
+
 // axios拦截器(request)
 Vue.prototype.axio.interceptors.request.use(function(config){
-  console.log('config',config)
+  // console.log('config',config)
   //在请求发出之前进行一些操作
   if(sessionStorage.token) {
     config.headers.Authorization = 'Bearer ' + sessionStorage.token

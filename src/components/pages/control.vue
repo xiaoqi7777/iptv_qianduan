@@ -42,28 +42,19 @@
                           <li :class='$style.pause' @click.stop="pause"></li>
                         </el-tooltip>
                         <el-tooltip class="item" effect="dark" content="请先停止录制" placement="bottom" v-if="record_id">
-                          <li :class='$style.pause2'  ></li>
+                          <li :class='$style.pause2'   @dblclick="btn" ></li>
                         </el-tooltip>
                          
                          
                     </ul>
                 </section>
         </article>
-        <!-- // <article :class="$style.moveTwo" ref="moveTwo2" v-show="!show" >
-        //         <section  :class="$style.right">
-        //             <ul :class="$style.ul2" >
-        //                 <li :class='$style.recording1'  @click.stop="handleRecording" v-if="!record_id">录制</li> 
-        //                 <li :class='$style.recording2'  @click.stop="handleRecorded" v-if="record_id">停止</li>
-        //                 <li :class='$style.pause' @click.stop="pause">停止<br/>播放</li> 
-        //             </ul>
-        //         </section>
-        // </article>  -->
     </div>
 </template>
 
 <script>
 export default {
-  props: ["show", "play_url", "fristChange", "io" , "play_name"],
+  props: ["show", "play_url", "fristChange", "io" ],
   name: "control",
   data() {
     return {
@@ -75,7 +66,8 @@ export default {
       record_id: "",
       dialogVisible: false,
       stopStatus: "",
-      count: 0
+      count: 0,
+      play_name:null
     };
   },
   watch: {
@@ -105,6 +97,10 @@ export default {
     }
   },
   methods: {
+    btn(){
+      //在录制状态下 双击关闭
+      this.pause()
+    },
     handleRecorded() {
       this.$message({
         message: "录制已停止",
@@ -117,6 +113,7 @@ export default {
     handleRecording(done) {
       this.$confirm("确认录制？")
         .then(() => {
+          // console.log('----------',this.recording())
           let isrecoding = this.recording()
           if(isrecoding){
             this.$message({
@@ -139,11 +136,11 @@ export default {
             type: "success",
             center: true
           });
-          console.log("取消了");
+          // console.log("取消了");
         });
     },
     onReset() {
-      console.log("暂停");
+      // console.log("暂停");
     },
     onUp(e) {
       let left = e.path[0].offsetLeft;
@@ -159,7 +156,7 @@ export default {
       e.path[0].style.top = top + 2 + "px";
       // console.log("onClick", e);
       //    this.send( key_code)
-      console.log("按下", key_code, this.io);
+      // console.log("按下", key_code, this.io);
       this.io.emit("key_board", {
         value: key_code
       });
@@ -171,30 +168,30 @@ export default {
       console.log("抬起");
     },
     pause() {
-      console.log("停止播放----------");
+      // console.log("停止播放----------");
       let thz = this;
       let obj = {
         play_url: this.play_url
       };
       this.$confirm("请确认退出播放？")
         .then(() => {
-          
+          // console.log('确定了---------')
           thz.io.emit("stop_single_media", obj);
-
-          this.io.on("stop_single_media_reply", data => {
-            console.log('--------',thz.count)
+          thz.count = 0;
+          thz.io.on("stop_single_media_reply", data => {
             thz.count++;
             if (thz.count == 1) {
+            // console.log('--------',thz.count)
               thz.io.emit("key_board", {
                 value: "back"
               });
-            }
+            } 
           });
           //消除本地 存储
-          // sessionStorage.removeItem('channel_name');
-          // sessionStorage.removeItem('channel_id');
-          // sessionStorage.removeItem('input_url');
-          // sessionStorage.removeItem('device_id');
+          sessionStorage.removeItem('channel_name');
+          sessionStorage.removeItem('channel_id');
+          sessionStorage.removeItem('input_url');
+          sessionStorage.removeItem('device_id');
           this.record_id = "";
 
           this.$emit("close");
@@ -210,14 +207,21 @@ export default {
 
     //开启录制方法
     recording() {
-      console.log('************',this.play_name) 
-      if(!this.play_name){
-        console.log('不支持录制')
-
+      //放在本地村粗
+      this.play_name = sessionStorage.getItem("channel_name");
+      let time = new Date().getTime()+''
+      if(time.slice(1,5) === this.play_name.slice(1,5)){
+        this.$message({
+          message: "不支持录制",
+          type: "warning",
+          center: true
+        });
         return false
       }
-        console.log('录制成功')
-
+       
+      this.play_name = null
+        // console.log('录制成功')
+      console.log('继续走了。。。。。。。。。。。。。。')
       let isSuccess = "";
       //获取本地 传递的录制信息
       this.channel_name = sessionStorage.getItem("channel_name");
@@ -227,7 +231,7 @@ export default {
       this.record_id = sessionStorage.getItem("record_id");
 
       let thz = this;
-      console.log("第4次录制的channel_id", this.channel_id,sessionStorage.getItem("channel_id"));
+      // console.log("获取本地存储信息", this.channel_name,this.channel_id,this.input_url,this.device_id);
 
       let obj = {
         channel_id: this.channel_id,
@@ -236,35 +240,36 @@ export default {
         channel_name: this.channel_name
       };
       //判断数据不能为空
-      if (
-        !this.channel_name &&
-        !this.input_url &&
-        !this.device_id &&
-        !this.channel_name
-      ) {
-        console.log("播放录制 => 数据为空");
-        return null;
-      }
+      // if (
+      //   !this.channel_name &&
+      //   !this.input_url &&
+      //   !this.device_id &&
+      //   !this.channel_name
+      // ) {
+      //   console.log("播放录制 => 数据为空");
+      //   return null;
+      // }
       //调用开启录制接口
       this.axio
         .post("/channel/start_record", obj)
         .then(res => {
           console.log("开启录制", res.data);
           if (res.data.ret.code === 0) {
-            console.log("开启录制成功", res.data.data.record_id);
+            // console.log("开启录制成功", res.data.data.record_id);
             thz.record_id = res.data.data.record_id;
             isSuccess = res.data.ret.code;
           } else {
-            console.log("开启录制失败", res.data.ret.cn);
+            // console.log("开启录制失败", res.data.ret.cn);
             isSuccess = res.data.ret.code;
           }
         })
         .catch(err => {
-          console.log("开启录制失败", err);
+          // console.log("开启录制失败", err);
           return 333;
         });
       this.isShow = false;
-      return isSuccess;
+      console.log('isSuccess',isSuccess)
+      return true;
     },
 
     //停止录制
@@ -277,7 +282,7 @@ export default {
         channel_name: this.channel_name
       };
 
-      console.log("停止录制", obj);
+      // console.log("停止录制", obj);
       //判断数据不能为空
       if (!this.record_id && !this.record_id) {
         console.log("停止录制=> 数据为空");
@@ -288,10 +293,10 @@ export default {
         .put("/channel/stop_record", obj)
         .then(res => {
           if (res.data.ret.code === 0) {
-            console.log("停止录制成功", res.data.ret.cn);
+            // console.log("停止录制成功", res.data.ret.cn);
             thz.record_id = "";
           } else {
-            console.log("停止录制失败", res.data.ret.cn);
+            // console.log("停止录制失败", res.data.ret.cn);
           }
         })
         .catch(err => {

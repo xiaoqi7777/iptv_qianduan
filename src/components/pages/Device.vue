@@ -83,14 +83,14 @@
                   ></el-button>
                 </el-tooltip>
 <!-- :class="scope.row.status==='offline'?'control':'controlL'" -->
-                <el-tooltip class="item" effect="dark" content="直播频道点播列表" placement="top-start">
+                <el-tooltip class="item" effect="dark" content="录制列表" placement="top-start">
                   <el-button
                   size="small"
                   class="table_list_btn device_dibblingList"
                   @click="goDibblingList(scope.row)"
                   ></el-button>
                 </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="频道列表" placement="top-start">
+                <el-tooltip class="item" effect="dark" content="直播列表" placement="top-start">
                   <el-button
                   size="small"
                   :disabled="scope.row.status === 'offline'"

@@ -1,7 +1,7 @@
 <template>
   <section class="dialog-wrapper">
     <el-dialog 
-      :title="`${play.name}`" 
+      :title="`${name}`" 
       top="5vh"
       :before-close="configurationClose" 
       :visible="show" 
@@ -31,16 +31,16 @@
 
   export default {
     name: 'play',
-    props: ['show', 'play', 'types'],
+    props: ['show', 'play', 'types','name'],
     components: {
       videoPlayer
     },
     mounted () {
-      console.log(this.$refs.videoPlayer)
       Object.assign(this.playerOptions, {
         sources: [{
           type: this.types,
-          src: this.play.play_url
+          // src:'rtmp://://live.hkstv.hk.lxdns.com/live/hks'
+          src: this.play
         }]
       })
     },
@@ -94,6 +94,6 @@
 
 <style>
 .dialog-wrapper .el-dialog__body{
-    padding: 1px 32px 29px;
+    padding: 1px 32px 29px!important;
 }
 </style>

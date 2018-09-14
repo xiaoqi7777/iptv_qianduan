@@ -163,10 +163,12 @@
       },
 
       playChannel (value) {
-        this.play_value = {
-          play_url: value.play_url,
-          name: value.file_name
-        }
+        console.log('value',value)
+        // this.play_value = {
+        //   play_url: value.play_url,
+        //   name: value.file_name
+        // }
+        this.play_value =value.play_url
         this.play_dialog = true
       },
 
