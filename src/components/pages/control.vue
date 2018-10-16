@@ -42,7 +42,7 @@
                           <li :class='$style.pause' @click.stop="pause"></li>
                         </el-tooltip>
                         <el-tooltip class="item" effect="dark" content="请先停止录制" placement="bottom" v-if="record_id">
-                          <li :class='$style.pause2'   @dblclick="btn" ></li>
+                          <li :class='$style.pause2' @dblclick="btn"></li>
                         </el-tooltip>
                          
                          
@@ -54,7 +54,7 @@
 
 <script>
 export default {
-  props: ["show", "play_url", "fristChange", "io" ],
+  props: ["show", "play_url", "fristChange", "io" ,'pauseRecording'],
   name: "control",
   data() {
     return {
@@ -71,6 +71,13 @@ export default {
     };
   },
   watch: {
+      //监视 停止录音
+      pauseRecording(){
+        if(this.pauseRecording === this.record_id){
+          this.record_id = ""
+          console.log('jinlail  ---------')
+        }
+      },
     // 'fristChange':{
     //     handler:function(a,b){
     //       console.log('1111111111新的',a)
@@ -98,8 +105,7 @@ export default {
   },
   methods: {
     btn(){
-      //在录制状态下 双击关闭
-      this.pause()
+      this.recorded()
     },
     handleRecorded() {
       this.$message({
@@ -159,7 +165,7 @@ export default {
       // console.log("按下", key_code, this.io);
       this.io.emit("key_board", {
         value: key_code
-      });
+      }); 
 
       // this.$root.test_1()
       // this.$root.send({ cmd: "key", code: key_code });
@@ -276,7 +282,6 @@ export default {
     recorded() {
       let thz = this;
       this.channel_name = sessionStorage.getItem("channel_name");
-
       let obj = {
         record_id: this.record_id,
         channel_name: this.channel_name
@@ -306,7 +311,9 @@ export default {
   },
 
   mounted() {
-    console.log('this.play_url',this.play_url)
+
+    //     })
+    // console.log('this.play_url',this.play_url)
   }
 };
 </script>

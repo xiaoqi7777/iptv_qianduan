@@ -25,7 +25,7 @@
   import Load from './load1.vue'
   import PlayDialog from './PlayDialog.vue'
   export default {
-    props:['item','aloneShow'],
+    props:['item','aloneShow','shuaixin','pauseRecording'],
     data(){
       return{
         isShow:false,
@@ -49,9 +49,20 @@
     },
     watch:{
       'item.name'(){
+        console.log('this.aloneShow',this.item)
+        this.device_id=this.item.device_id
+        this.channelUrl=this.item.channel_url
+        this.channel_name=this.item.name
+        this.channel_id=this.item.id
+        //开启录制获取的ID
+        this.record_id=this.item.record_id
+        this.playUrl=this.item.play_url
+        this.taskId=this.item.task_id
         if(this.aloneShow ==this.item.name){
+          this.playUrl = this.item.play_url
+          this.record_id = this.item.record_id
           console.log('jin...',this.item.task_id)
-          if(this.taskId){
+          if(this.record_id){
             this.isRecording = true
           }else{
             this.isRecording = false
@@ -60,8 +71,32 @@
         }else{
           this.isShow = false
         }
-      
-      }
+      },
+      'pauseRecording'(){
+        if(this.pauseRecording === this.record_id){
+          console.log('开启录制++++++++++++++++++++++++++',this.pauseRecording)
+          this.isRecording = false
+        }
+
+      },
+      'shuaixin'(){
+        
+        console.log('---111--s',this.aloneShow)
+          // this.isShow = false
+
+        if(!this.playUrl){
+          console.log('走上',this.item.name)
+          this.isShow = false
+                   this.$emit('showStatus',this.item.name)
+          this.$emit('changPuase')
+        }else{  
+          console.log('走下',this.item.name)
+         this.$emit('showStatus',this.item.name)
+        }
+        // if(!this.playUrl){
+        //     console.log('jige',aloneShow)
+        // }
+      },
     },
     update(){
       console.log('updata')
@@ -73,7 +108,8 @@
         this.$emit('showStatus',this.item.name)
         this.$emit('startPlay',this.channel_name,this.item.index)
         if(this.record_id){
-        this.isRecording = true
+          console.log('kaiqi------------------')
+          this.isRecording = true
         } 
       }
     },
@@ -82,8 +118,14 @@
         console.log('guanbi')
       },
       playShow(){
+        console.log('-----s',this.aloneShow)
+
         //判断只能显示一个
         if(this.aloneShow){
+          this.$message({
+              message: '只支持一路播放',
+              type: 'warning'
+            });
           return
         }
         this.isShow = true
@@ -141,6 +183,7 @@
         }
       },
       starRecording(){
+        console.log('录制的名字',this.channel_name)
         //切换停止录制
         if(!this.playUrl){
           this.$notify({
@@ -181,9 +224,12 @@
                     type: 'success',
                     message: '频道录制已启动' 
                   })
+
                   this.record_id = response.data.data.record_id
                   this.isRecording = true
                   thz.isPlay = true
+                  console.log('开启录制，，，，，，，，，，，，，，，，，，，，，')
+                
                 }else {
                   this.$notify({
                     type: 'error',
@@ -206,7 +252,8 @@
       },
       StopRecording(){
         //切换开始录制
-        console.log('StopRecording--')
+        console.log('停止的名字',this.channel_name)
+
         
         let thz = this
         const h = this.$createElement;

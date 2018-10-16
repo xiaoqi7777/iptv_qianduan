@@ -35,7 +35,7 @@ const router = new Router({
           }
         },
         {
-          path: '/channel/:id',
+          path: '/channel/:id/:serial_number',
           name: 'channel',
           hidden: true,
           component: Channel

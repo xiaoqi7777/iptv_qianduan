@@ -14,11 +14,11 @@
             <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
           </div>
           <div class="controlHeight">
-            <Control class="controlPlce" :fristChange='control' :show='test' @close='closed'  :play_url='play_url' :io="this.io"/>
+            <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :pauseRecording='pauseRecording'  :play_url='play_url' :io="io"/>
           </div>
           <!-- <Control :play_url='play_url'/> -->
           <!-- <Control class="controlPlce" :fristChange='control' :show='test' @close='closed' :play_url='play_url'/> -->
-          
+
           <!-- <button  @click="click1">切换</button>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <button @click='axios'>获取URL地址</button>
@@ -37,7 +37,7 @@ import LoadTwo from "./loadTwo";
 import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
-  props: ["id"],
+  props: ["item"],
   data() {
     return {
       loadShow: false,
@@ -51,9 +51,10 @@ export default {
       //截获 播放时候 可以录制 传给Control 一个非空 做判断
       control: "",
       io: null,
-
       mediaCode: null,
-      frequency:0
+      frequency:0,
+      pauseRecording:null
+
     };
   },
   components: {
@@ -115,7 +116,7 @@ export default {
           let channel_name = message.channel_name;
 
           let thz = this;
-          let id = thz.id;
+          let id = thz.item.id;
           let testFn = () => {
                   thz.axio
                     .post("/device/get_current_single_media_task", { device_id: id ,type:'vod'  })
@@ -124,7 +125,7 @@ export default {
                       if (res.data.data && res.data.data.play_status) { 
                         sessionStorage.setItem("channel_name", channel_name);
                         sessionStorage.setItem("channel_id", channel_id);
-                        sessionStorage.setItem("device_id", thz.id);
+                        sessionStorage.setItem("device_id", thz.item.id);
                         sessionStorage.setItem("input_url", message.play_url);
                         clearInterval(thz.time);
                         thz.loadTwoShow = true;
@@ -158,7 +159,7 @@ export default {
     //找后端 查询 盒子的状态是啥
     mediaStatus() {
       let thz = this;
-      let id = thz.id;
+      let id = thz.item.id;
       // get_current_single_media_task
       // get_single_media_task_status
       thz.axio
@@ -179,7 +180,7 @@ export default {
               console.log("可以播放---------------------");
               //本地临时存储 设备ID 和 播放地址
               sessionStorage.setItem("input_url", thz.play_url);
-              sessionStorage.setItem("device_id", thz.id);
+              sessionStorage.setItem("device_id", thz.item.id);
 
               thz.loadTwoShow = false;
               thz.loadShow = false;
@@ -236,10 +237,8 @@ export default {
       this.play_url = ""
     },
     initIo() {
-      this.io = socketIo("ws://192.168.1.173:3000", {
-      // this.io = socketIo("ws://47.96.129.127:3000", {
-
-        query: { token: "00E04C644323", client_type: "web" }
+      this.io = socketIo("ws://47.96.129.127:3000", {
+        query: { token: `${this.item.serial_number}`, client_type: "web" }
       });
       this.io.on('error',data=>{
         console.log('error------',data)
@@ -247,6 +246,14 @@ export default {
       this.io.on('connect_error',data=>{
         console.log('connect_error------',data)
       })
+      this.io.on('record_stoped',(data)=>{
+          this.pauseRecording = new Date().getTime()
+
+            this.$message({
+              message: '录制时间已到',
+              type: 'warning'
+            });
+         })
     }
   },
 
@@ -257,6 +264,7 @@ export default {
     this.time3 = null;
   },
   mounted() {
+    console.log('item++++++++++++++',this.item)
     //查询盒子状态
     this.mediaStatus();
     //canvans初始化

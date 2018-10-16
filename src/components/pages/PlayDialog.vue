@@ -93,7 +93,5 @@
 </script>
 
 <style>
-.dialog-wrapper .el-dialog__body{
-    padding: 1px 32px 29px!important;
-}
+
 </style>

@@ -95,7 +95,7 @@
                   size="small"
                   :disabled="scope.row.status === 'offline'"
                   class="table_list_btn device_channelList"
-                  @click="goChannelList(scope.row.id)"
+                  @click="goChannelList(scope.row)"
                   ></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
@@ -109,7 +109,7 @@
         </el-table>
         <el-pagination
         @current-change="handleCurrentChange"
-        :current-page.sync="currentPage"
+        :current-page.sync="currentPage" 
         layout="prev, pager, next"
         :total="totalPage"
         >
@@ -123,7 +123,7 @@
           width="688px"
           :before-close="handleClose" >
           <section>
-              <Home v-if='isShow' ref="play" :id='id'/>
+              <Home v-if='isShow' ref="play" :item='item'/>
           </section>
         </el-dialog>
 
@@ -152,7 +152,7 @@
       return {
         show: true,
         //设备ID
-        id:'',
+        item:'',
         isShow:false,
         nameId:'',
         dialogVisible:false,
@@ -192,7 +192,7 @@
         console.log('close******************')
       },
       dialogVisibles(boolean,item){
-        this.id = item.id
+        this.item = item
         console.log('打开播放器 打印id',this.id)
         this.isShow = true
         this.dialogVisible = boolean
@@ -248,14 +248,14 @@
           name: `dibbling`,
           params: {
             id: scope.id,
-            device_name: scope.name
+            device_name: scope.name,
           }
         })
       },
 
-      goChannelList (id) {
+      goChannelList (item) {
         this.$router.push({
-          path: `channel/${id}`,
+          path: `channel/${item.id}/${item.serial_number}`,
         })
       },
 
@@ -291,7 +291,7 @@
     padding-bottom:0px
   }
   .el-dialog__body {
-    padding: 1px 32px  17px;
+    padding: 1px 32px 29px!important;
   }
   .el-dialog__footer{
     padding: 7px;

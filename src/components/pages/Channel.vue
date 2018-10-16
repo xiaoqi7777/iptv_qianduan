@@ -9,16 +9,6 @@
           <el-form-item>
             <el-input v-model="filters.channel_name" placeholder="频道名称"></el-input>
           </el-form-item>
-          <el-form-item>
-            <el-select v-model="filters.status" placeholder="频道状态">
-              <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
           <el-form-item class="jiemu">
             {{channelName?`正在播放节目:${channelName}`:'暂无播放节目'}} --
             {{channelTotal?`节目总数:${channelTotal}`:'0'}}
@@ -32,7 +22,7 @@
     <div class="table_wrapper">
         <ul class="channel">
           <li  v-for="(item,index) in tableData" :key="index">
-            <test :item='item' @showStatus='showStatus' @changPuase ='puaseStatus' @startPlay='startPlay'  :aloneShow='aloneShow' />
+            <test :item='item' @showStatus='showStatus' @changPuase ='puaseStatus' @startPlay='startPlay' :shuaixin='shuaixin' :aloneShow='aloneShow' :pauseRecording='pauseRecording' />
             </li>
         </ul>
       <el-table 
@@ -59,17 +49,19 @@
   import PlayDialog from './PlayDialog.vue'
   import Load from './load.vue'
   import test from './test.vue'
+  import socketIo from "socket.io-client";
   export default {
     name: 'channel',
     destroyed () {
       clearTimeout(this.timeoutInterval)
     },
     mounted () {
+      this.serial_number = this.$route.params.serial_number
       let self =this
       self.getChannelList ()
       self.filters.status = ''
       self.getChannelList ()
-
+      this.initIo()
     },
     components: {
       PlayDialog,
@@ -88,36 +80,48 @@
     data () { 
       return {
         isShow:true,
+        shuaixin:null,
         filters: {
           channel_name: '',
           status: ''
         },
-        options: [
-          {
-            value: '',
-            label: '全部'
-          },
-          {
-            value: 'offline',
-            label: '已关闭'
-          },
-          {
-            value: 'online',
-            label: '已启动'
-          }
-        ],
         channelName:'',
         channelTotal:null,
         tableData: [],
         limit : 65,
-        currentPage: 1,
+        currentPage: 1, 
         totalPage: null,
         play_dialog: false,
         play_value: {},
         aloneShow:'',
+        pauseRecording:null,
+        serial_number:null
       }
     },
+    beforeDestroy() {
+      this.io.close();  
+    },
     methods: {
+      initIo() {
+        console.log('初始化---------------------------io',)
+        this.io = socketIo("ws://47.96.129.127:3000", {
+          query: { token:`${this.serial_number}`, client_type: "web" }
+        });
+        this.io.on('error',data=>{
+          console.log('error------',data)
+        })
+        this.io.on('connect_error',data=>{
+          console.log('connect_error------',data)
+        })
+        this.io.on('record_stoped',(data)=>{
+          console.log('**********************-',this.channel_name,this.record_id,data)
+                 this.pauseRecording = data.record_id
+                  this.$message({
+                    message: '录制时间已到',
+                    type: 'warning'
+                  });
+                })
+      },
       startPlay(data1,data2){
         console.log('data',data1,data2)
         if(data2&&data1){
@@ -137,37 +141,18 @@
         this.aloneShow = ''
       },
       getChannelList () {
-        let self = this, status = false, params = {
+        let self = this;
+        let params = {
           current_page: this.currentPage,
           device_id: parseInt(this.$route.params.id),
           limit:this.limit
         }
-
-        for(let value of Object.values(this.filters)) {
-          if(value !== '') {
-            status = true;
-            break;
-          }
+        if(this.filters.channel_name){
+           Object.assign(params, this.filters)
+           params.current_page = 1
         }
-        console.log('status',status)
-        if(status) {
-          Object.assign(params, this.filters)
-          params.current_page = 1
-          this.axio.post(`channel/list`, params)
-          .then((response) => {
-            if(response.data.ret.code === 0) {
-              this.channelTotal = response.data.data&&response.data.data.total
-              let resposneData = response.data.data
-              this.currentPage = 1
-              this.totalPage = resposneData.total
-              this.tableData = resposneData.res
-              this.tableData.forEach((item)=>{
-                console.log(1)
-              })
-            }
-          })
-        }else {
-          this.axio.post(`channel/list`, params)
+        
+        this.axio.post(`channel/list`, params)
           .then((response) => {
             if(response.data.ret.code === 0) {
               this.channelTotal = response.data.data&&response.data.data.total
@@ -175,13 +160,14 @@
               let resposneData = response.data.data
               this.totalPage = resposneData.total
               this.tableData = resposneData.res
+                console.log('---2')
               this.tableData.forEach((item,index)=>{
                   let data ='00'+(index+1+(this.currentPage-1)*this.limit)
                   this.tableData[index]['index']  = data.slice(data.length-3,data.length)
               })
             }
           })
-        }
+        // }
       },
 
       stopChannel (scope) {
@@ -395,6 +381,7 @@
       
       handleCurrentChange (val) {
         // this.limit = val*65
+        console.log('11')
         this.currentPage = val
         this.filters.status = ''
         this.getChannelList ()
