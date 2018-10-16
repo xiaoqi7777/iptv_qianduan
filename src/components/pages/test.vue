@@ -77,7 +77,6 @@
           console.log('开启录制++++++++++++++++++++++++++',this.pauseRecording)
           this.isRecording = false
         }
-
       },
       'shuaixin'(){
         
