@@ -13,7 +13,7 @@
                 </section >
                 <section  :class="$style.right">
                     <ul :class="$style.ul">
-                        <li @mousedown.stop="onClick(0,$event)" @mouseup="onUp($event)"></li>
+                        <li @mousedown.stop="onClick('menu',$event)" @mouseup="onUp($event)"></li>
                         <li @mousedown.stop="onClick('back',$event)" @mouseup="onUp($event)"></li> 
                     </ul> 
                 </section>
@@ -44,8 +44,6 @@
                         <el-tooltip class="item" effect="dark" content="请先停止录制" placement="bottom" v-if="record_id">
                           <li :class='$style.pause2' @dblclick="btn"></li>
                         </el-tooltip>
-                         
-                         
                     </ul>
                 </section>
         </article>
@@ -54,7 +52,7 @@
 
 <script>
 export default {
-  props: ["show", "play_url", "fristChange", "io" ,'pauseRecording'],
+  props: ["show", "play_url", "fristChange", "io" ,'pauseRecording','isBack'],
   name: "control",
   data() {
     return {
@@ -67,7 +65,10 @@ export default {
       dialogVisible: false,
       stopStatus: "",
       count: 0,
-      play_name:null
+      play_name:null,
+      isAbled:null,
+      timer:null,
+      disable:true
     };
   },
   watch: {
@@ -116,34 +117,30 @@ export default {
       this.recorded();
     },
     //ele 弹框
-    handleRecording(done) {
-      this.$confirm("确认录制？")
-        .then(() => {
-          // console.log('----------',this.recording())
-          let isrecoding = this.recording()
-          if(isrecoding){
-            this.$message({
-              message: "录制已开启",
-              type: "success",
-              center: true
+    async handleRecording(done) {
+      try {
+        await this.$confirm("确认录制？")
+        let isrecoding = this.recording()
+        if(isrecoding){
+          this.$message({
+            message: "录制已开启",
+            type: "success",
+            center: true
           });
-          }else{
-            this.$message({
-                message: "不支持录制",
-                type: "warning",
-                center: true
-              });
-          }
-          
-        })
-        .catch(() => {
+        }else{
+          this.$message({
+              message: "不支持录制",
+              type: "warning",
+              center: true
+            });
+        }       
+      } catch (error) {
           this.$message({
             message: "录制已取消",
             type: "success",
             center: true
           });
-          // console.log("取消了");
-        });
+      }
     },
     onReset() {
       // console.log("暂停");
@@ -163,52 +160,60 @@ export default {
       // console.log("onClick", e);
       //    this.send( key_code)
       // console.log("按下", key_code, this.io);
-      this.io.emit("key_board", {
-        value: key_code
-      }); 
 
+      if(key_code === 'back' && this.isBack === 'on'){
+          return
+      }
+      if(this.disable){
+        console.log('----------------------------',this.disable)
+        this.disable = false
+        this.io.emit("key_board", {
+          value: key_code
+        }); 
+        this.timer =  setTimeout(()=>{
+          this.disable = true
+        },1000)
+      }
       // this.$root.test_1()
       // this.$root.send({ cmd: "key", code: key_code });
     },
     onStop() {
       console.log("抬起");
     },
-    pause() {
+    async pause() {
       // console.log("停止播放----------");
-      let thz = this;
       let obj = {
         play_url: this.play_url
       };
-      this.$confirm("请确认退出播放？")
-        .then(() => {
-          // console.log('确定了---------')
-          thz.io.emit("stop_single_media", obj);
-          thz.count = 0;
-          thz.io.on("stop_single_media_reply", data => {
-            thz.count++;
-            if (thz.count == 1) {
-            // console.log('--------',thz.count)
-              thz.io.emit("key_board", {
-                value: "back"
-              });
-            } 
-          });
-          //消除本地 存储
-          sessionStorage.removeItem('channel_name');
-          sessionStorage.removeItem('channel_id');
-          sessionStorage.removeItem('input_url');
-          sessionStorage.removeItem('device_id');
-          this.record_id = "";
+      try {
+        await this.$confirm("请确认退出播放？")
+        this.io.emit("stop_single_media", obj);
+        this.count = 0;
+        this.io.on("stop_single_media_reply", data => {
+          console.log('-------------')
+          this.count++;
+          if (this.count == 1) {
+          // console.log('--------',thz.count)
+            this.io.emit("key_board", {
+              value: "back"
+            });
+          } 
+        });
+        //消除本地 存储
+        sessionStorage.removeItem('channel_name');
+        sessionStorage.removeItem('channel_id');
+        sessionStorage.removeItem('input_url');
+        sessionStorage.removeItem('device_id');
+        this.record_id = "";
 
-          this.$emit("close");
-        })
-        .catch(() => {
+        this.$emit("close");     
+      } catch (error) {
           this.$message({
             message: "取消停止播放",
             type: "success",
             center: true
           });
-        });
+      }
     },
 
     //开启录制方法
@@ -500,7 +505,7 @@ export default {
   top: 3.5rem;
 }
 .right1 .ul .pause {
-  background-image: url(../../assets/images/icon_ps.png);
+  background-image: url(../../assets/images/icon_stop.png);
   background-size: contain;
   width: 100px;
   height: 50px;

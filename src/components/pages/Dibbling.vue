@@ -45,7 +45,7 @@
           width="240"
           :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            {{scope.row.start_time}}
+            {{scope.row.start_time | filtersTime}}
           </template>
         </el-table-column>
         <el-table-column 
@@ -55,7 +55,7 @@
           width="240"
           :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            {{scope.row.end_time}}
+            {{scope.row.end_time | filtersTime}}
           </template>
         </el-table-column>
         <el-table-column 
@@ -111,6 +111,18 @@
         currentPage: 1,
         play_value: null,
         play_dialog: false
+      }
+    },
+    filters:{
+      filtersTime:function(value){
+          let data = value.replace(/\:/g,(item,index,arr)=>{
+            if(index<8){
+              return '-'
+            }else{
+              return item
+            }
+          })
+          return data
       }
     },
     methods: {

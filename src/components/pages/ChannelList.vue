@@ -28,6 +28,7 @@
     props:['item','aloneShow','shuaixin','pauseRecording'],
     data(){
       return{
+        //按钮显示开关
         isShow:false,
         isRecording:false,
         device_id:this.item.device_id,
@@ -49,7 +50,7 @@
     },
     watch:{
       'item.name'(){
-        console.log('this.aloneShow',this.item)
+        // console.log('this.aloneShow',this.item)
         this.device_id=this.item.device_id
         this.channelUrl=this.item.channel_url
         this.channel_name=this.item.name
@@ -74,13 +75,13 @@
       },
       'pauseRecording'(){
         if(this.pauseRecording === this.record_id){
-          console.log('开启录制++++++++++++++++++++++++++',this.pauseRecording)
+          // console.log('开启录制++++++++++++++++++++++++++',this.pauseRecording)
           this.isRecording = false
         }
       },
       'shuaixin'(){
         
-        console.log('---111--s',this.aloneShow)
+        // console.log('---111--s',this.aloneShow)
           // this.isShow = false
 
         if(!this.playUrl){
@@ -102,12 +103,12 @@
     },
     mounted(){
       if(this.taskId){
-        console.log('taskId------------',this.taskId)
+        // console.log('taskId------------',this.taskId)
         this.isShow = true
         this.$emit('showStatus',this.item.name)
         this.$emit('startPlay',this.channel_name,this.item.index)
         if(this.record_id){
-          console.log('kaiqi------------------')
+          // console.log('kaiqi------------------')
           this.isRecording = true
         } 
       }
@@ -117,7 +118,7 @@
         console.log('guanbi')
       },
       playShow(){
-        console.log('-----s',this.aloneShow)
+        // console.log('-----s',this.aloneShow)
 
         //判断只能显示一个
         if(this.aloneShow){

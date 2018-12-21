@@ -9,6 +9,9 @@
           <el-form-item>
             <el-input v-model="filters.channel_name" placeholder="频道名称"></el-input>
           </el-form-item>
+          <el-form-item>
+            <el-input v-model="filters.u_channel_id" placeholder="频道号"></el-input>
+          </el-form-item>
           <el-form-item class="jiemu">
             {{channelName?`正在播放节目:${channelName}`:'暂无播放节目'}} --
             {{channelTotal?`节目总数:${channelTotal}`:'0'}}
@@ -22,8 +25,8 @@
     <div class="table_wrapper">
         <ul class="channel">
           <li  v-for="(item,index) in tableData" :key="index">
-            <test :item='item' @showStatus='showStatus' @changPuase ='puaseStatus' @startPlay='startPlay' :shuaixin='shuaixin' :aloneShow='aloneShow' :pauseRecording='pauseRecording' />
-            </li>
+            <ChannelList :item='item' @showStatus='showStatus' @changPuase ='puaseStatus' @startPlay='startPlay' :shuaixin='shuaixin' :aloneShow='aloneShow' :pauseRecording='pauseRecording' />
+          </li>
         </ul>
       <el-table 
         :data="tableData"
@@ -48,7 +51,7 @@
 
   import PlayDialog from './PlayDialog.vue'
   import Load from './load.vue'
-  import test from './test.vue'
+  import ChannelList from './ChannelList.vue'
   import socketIo from "socket.io-client";
   export default {
     name: 'channel',
@@ -66,7 +69,7 @@
     components: {
       PlayDialog,
       Load,
-      test
+      ChannelList
     },
     filters: {
       timeR: function (value) {
@@ -83,6 +86,7 @@
         shuaixin:null,
         filters: {
           channel_name: '',
+          u_channel_id: '',
           status: ''
         },
         channelName:'',
@@ -140,6 +144,7 @@
       puaseStatus(){
         this.aloneShow = ''
       },
+      // 获取当前的节目列表
       getChannelList () {
         let self = this;
         let params = {
@@ -147,7 +152,7 @@
           device_id: parseInt(this.$route.params.id),
           limit:this.limit
         }
-        if(this.filters.channel_name){
+        if(this.filters.channel_name || this.filters.u_channel_id){
            Object.assign(params, this.filters)
            params.current_page = 1
         }
@@ -160,7 +165,7 @@
               let resposneData = response.data.data
               this.totalPage = resposneData.total
               this.tableData = resposneData.res
-                console.log('---2')
+                // console.log('---2')
               this.tableData.forEach((item,index)=>{
                   let data ='00'+(index+1+(this.currentPage-1)*this.limit)
                   this.tableData[index]['index']  = data.slice(data.length-3,data.length)
@@ -381,7 +386,7 @@
       
       handleCurrentChange (val) {
         // this.limit = val*65
-        console.log('11')
+        console.log('分页条打印的值',val)
         this.currentPage = val
         this.filters.status = ''
         this.getChannelList ()
@@ -399,7 +404,8 @@
     display: flex;
     flex-direction: column;
     flex-wrap:wrap;
-    justify-content:flex-start
+    justify-content:flex-start;
+    overflow:auto
   }
 
   .channel_stop {
