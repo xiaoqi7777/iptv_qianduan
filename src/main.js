@@ -14,7 +14,7 @@ Vue.prototype.soft_version = soft_version
 Vue.use(ElementUI);
 let url = ''
 if (process.env.NODE_ENV == 'development') {
-  url = 'http://192.168.1.192:3000/api/v1'
+  url = 'http://192.168.1.165:3000/api/v1'
 }else {
   url = window.location.protocol + '//' + window.location.host + '/api/v1'
 }
@@ -70,7 +70,7 @@ Vue.prototype.axio.interceptors.response.use(
     } else {
       vm.$notify({
         type: 'info',
-        message: '网络连接部错误'
+        message: '网络连接错误'
       })
     }
     return Promise.resolve(error.response);

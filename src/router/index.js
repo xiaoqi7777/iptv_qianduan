@@ -7,6 +7,7 @@ import Device from '@/components/pages/Device'
 import Channel from '@/components/pages/Channel'
 import Dibbling from '@/components/pages/Dibbling'
 import Configuration from '@/components/pages/Configuration'
+import Demand from '@/components/pages/Demand'
 
 
 Vue.use(Router)
@@ -32,6 +33,14 @@ const router = new Router({
           component: Configuration,
           meta: {
             title: '模板管理'
+          }
+        },
+        {
+          path: '/demand',
+          name: 'demand',
+          component: Demand,
+          meta: {
+            title: '点播管理'
           }
         },
         {

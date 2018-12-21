@@ -4,7 +4,7 @@
       <span>
         <span v-if="$route.params.device_name">设备 <span class="title-content">{{`${$route.params.device_name} `}}</span></span>
         <span v-if="$route.params.channel_name">频道 <span class="title-content">{{`${$route.params.channel_name} `}}</span></span>
-        的点播列表
+        的录制列表
       </span>
       <el-button class="device_toolbtn tool_back" type="primary" round @click="goBack">返回</el-button>
     </div>

@@ -74,7 +74,7 @@
             :resizable="false"
             width="280">
               <template slot-scope="scope">
-                <el-tooltip class="item" effect="dark" content="点播列表" placement="top-start">
+                <el-tooltip class="item" effect="dark" content="录制列表" placement="top-start">
                   <el-button
                   size="small"
                   class="table_list_btn device_dibblingList"
