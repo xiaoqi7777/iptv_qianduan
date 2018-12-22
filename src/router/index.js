@@ -4,9 +4,10 @@ import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Hello from '@/components/HelloWorld'
 import Device from '@/components/pages/Device'
-import Channel from '@/components/pages/Channel'
+import Channels from '@/components/pages/Channel'
 import Dibbling from '@/components/pages/Dibbling'
 import Configuration from '@/components/pages/Configuration'
+import Demand from '@/components/pages/Demand'
 
 Vue.use(Router)
 
@@ -35,9 +36,18 @@ const router = new Router({
         },
         {
           path: '/channel/:id/:serial_number',
-          name: 'channel',
+          path: '/demand',
+          name: 'demand',
+          component: Demand,
+          meta: {
+            title: '点播管理'
+          }
+        },
+        {
+          path: '/channels/:id',
+          name: 'channels',
           hidden: true,
-          component: Channel
+          component: Channels
         },
         {
           path: '/dibbling/:id',

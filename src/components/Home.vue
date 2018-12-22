@@ -13,7 +13,7 @@
         </el-popover>
         <el-button type="text" style="padding: 0;" circle icon="el-icon-info" v-popover:version></el-button>
       </div>
-      <el-menu class="menu-wrapper" :default-active="$route.name === 'channel' || $route.name === 'dibbling' ? '/device' : $route.path" router>
+      <el-menu class="menu-wrapper" :default-active="$route.name === 'channels' || $route.name === 'dibbling' ? '/device' : $route.path" router>
         <el-menu-item v-for="(item, index) in $router.options.routes[0].children"
           :key="index"
           :index="item.path"

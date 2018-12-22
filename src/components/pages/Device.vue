@@ -255,7 +255,7 @@
 
       goChannelList (item) {
         this.$router.push({
-          path: `channel/${item.id}/${item.serial_number}`,
+          path: `channels/${item.id}/${item.serial_number}`,
         })
       },
 

@@ -83,7 +83,7 @@ Vue.prototype.axio.interceptors.response.use(
     } else {
       vm.$notify({
         type: 'info',
-        message: '网络连接部错误'
+        message: '网络连接错误'
       })
     }
     return Promise.resolve(error.response);
