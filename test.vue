@@ -40,8 +40,7 @@ export default {
         sources: [
           {
             type: "rtmp/mp4",
-            src:'rtmp://47.96.129.127/live/04b1301162bccfcd570f95fd10fe673c'
-            // src: this.play_url
+            src: this.play_url
           }
         ]
       },
@@ -106,4 +105,3 @@ export default {
   height: 130px;
 }
 </style>
-

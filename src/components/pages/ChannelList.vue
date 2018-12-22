@@ -133,7 +133,6 @@
         //父组件变换组件单独显示,通过this.item.name 识别==》aloneShow
       },
       play(){
-
         let thz = this
         console.log('record_id',this.record_id)
 

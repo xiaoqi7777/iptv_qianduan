@@ -8,7 +8,6 @@ import Channel from '@/components/pages/Channel'
 import Dibbling from '@/components/pages/Dibbling'
 import Configuration from '@/components/pages/Configuration'
 
-
 Vue.use(Router)
 
 const router = new Router({

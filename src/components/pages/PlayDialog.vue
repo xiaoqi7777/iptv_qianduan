@@ -38,8 +38,7 @@
     mounted () {
       Object.assign(this.playerOptions, {
         sources: [{
-          type: this.types,
-          // src:'rtmp://://live.hkstv.hk.lxdns.com/live/hks'
+          type: "rtmp/mp4",
           src: this.play
         }]
       })
@@ -52,15 +51,18 @@
     data () {
       return {
         dialog_title: '',
+        controls: true,
+        preload: "metadata",
+        reset: true,
         playerOptions: {
           // videojs options
           muted: true,
           language: 'en',
           height: '500',
           width: '100%',
-          autoplay: true,
+          autoplay: false,
           preload: true,
-          techOrder: [ 'html5', 'flash'],
+          techOrder: ['flash'],
         }
       }
     },
