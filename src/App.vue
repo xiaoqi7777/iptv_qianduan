@@ -252,6 +252,13 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
   background-image: url('./assets/control.png') !important;
 }
 
+.demandL {
+  background-image: url('./assets/demandL.png') !important;
+}
+.demand {
+  background-image: url('./assets/demand.png') !important;
+}
+
 
 .video-js {
   width: 100% !important;

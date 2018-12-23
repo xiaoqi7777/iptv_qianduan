@@ -72,21 +72,29 @@
             align="right"
             header-align="center"
             :resizable="false"
-            width="280">
+            width="340">
               <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" content="点播列表" placement="top-start" >
+                  <el-button
+                  size="small"
+                  class="table_list_btn " :class="scope.row.status==='offline'?'demand':'demandL'"
+                  :disabled="scope.row.status==='offline'"
+                  @click="goToDemand(scope.row)"
+                  ></el-button>
+                </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="监看" placement="top-start" >
                   <el-button
                   size="small"
                   class="table_list_btn " :class="scope.row.status==='offline'?'control':'controlL'"
-                  :disabled="scope.row.status==='offline'?'disabled':null"
+                  :disabled="scope.row.status==='offline'"
                   @click="dialogVisibles(true,scope.row)"
                   ></el-button>
                 </el-tooltip>
-<!-- :class="scope.row.status==='offline'?'control':'controlL'" -->
                 <el-tooltip class="item" effect="dark" content="录制列表" placement="top-start">
                   <el-button
                   size="small"
                   class="table_list_btn device_dibblingList"
+                  :disabled="scope.row.status === 'offline'"
                   @click="goDibblingList(scope.row)"
                   ></el-button>
                 </el-tooltip>
@@ -123,7 +131,7 @@
           width="688px"
           :before-close="handleClose" >
           <section>
-              <Home v-if='isShow' ref="play" :item='item'/>
+              <IptvControl v-if='isShow' ref="play" :item='item'/>
           </section>
         </el-dialog>
 
@@ -137,13 +145,13 @@
 <script>
   import DeviceDialog from './DeviceDialog.vue'
   import SSHDialog from './SSHDialog.vue'
-  import Home from './home'
+  import IptvControl from './IptvControl'
   export default {
     name: 'device',
     components: {
       DeviceDialog,
       SSHDialog,
-      Home
+      IptvControl
     },
     mounted () {
       this.getDeviceList ()
@@ -190,6 +198,14 @@
         this.isShow = false
         //  console.log('ref*****************************ref',this.$refs.play.test1()) 
         console.log('close******************')
+      },
+      goToDemand(item){
+        this.$router.push({
+          name: `demand`,
+          params: {
+            id: item,
+          }
+        })
       },
       dialogVisibles(boolean,item){
         this.item = item
@@ -255,7 +271,7 @@
 
       goChannelList (item) {
         this.$router.push({
-          path: `channels/${item.id}/${item.serial_number}`,
+          path: `channel/${item.id}/${item.serial_number}`,
         })
       },
 

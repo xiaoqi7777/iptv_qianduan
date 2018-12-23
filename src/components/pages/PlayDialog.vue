@@ -36,6 +36,7 @@
       videoPlayer
     },
     mounted () {
+      console.log('play',this.play)
       Object.assign(this.playerOptions, {
         sources: [{
           type: "rtmp/mp4",

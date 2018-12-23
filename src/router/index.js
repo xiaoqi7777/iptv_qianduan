@@ -4,7 +4,7 @@ import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Hello from '@/components/HelloWorld'
 import Device from '@/components/pages/Device'
-import Channels from '@/components/pages/Channel'
+import Channel from '@/components/pages/Channel'
 import Dibbling from '@/components/pages/Dibbling'
 import Configuration from '@/components/pages/Configuration'
 import Demand from '@/components/pages/Demand'
@@ -35,8 +35,7 @@ const router = new Router({
           }
         },
         {
-          path: '/channel/:id/:serial_number',
-          path: '/demand',
+          path: '/demand/:id',
           name: 'demand',
           component: Demand,
           meta: {
@@ -44,10 +43,10 @@ const router = new Router({
           }
         },
         {
-          path: '/channels/:id',
-          name: 'channels',
+          path: '/channel/:id/:serial_number',
+          name: 'channel',
           hidden: true,
-          component: Channels
+          component: Channel
         },
         {
           path: '/dibbling/:id',

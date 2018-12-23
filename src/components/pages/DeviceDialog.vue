@@ -8,6 +8,9 @@
         <el-form-item prop="serial_number" label="唯一码串号">
           <el-input v-model="deviceForm.serial_number"></el-input>
         </el-form-item>
+        <el-form-item prop="serial_type" label="唯一设备号">
+          <el-input v-model="deviceForm.serial_type"></el-input>
+        </el-form-item>
         <el-form-item prop="description" label="设备描述">
           <el-input type="textarea" :rows="4" v-model="deviceForm.description"></el-input>
         </el-form-item>
@@ -52,6 +55,7 @@
         deviceForm: {
           name: '',
           serial_number: '',
+          serial_type:'',
           description: '',
           disabled: false
         },

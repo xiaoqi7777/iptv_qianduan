@@ -20,7 +20,6 @@ import "videojs-flash";
 export default {
   props: {
     play_url: String,
-    text: String
   },
   data() {
     return {
@@ -35,13 +34,11 @@ export default {
         language: "en",
         playbackRates: [0.7, 1.0, 1.5, 2.0],
         techOrder: ["flash"],
-        // poster: "/static/images/author.jpg",
         dataSetup: "{}",
         sources: [
           {
             type: "rtmp/mp4",
-            src:'rtmp://47.96.129.127/live/04b1301162bccfcd570f95fd10fe673c'
-            // src: this.play_url
+            src: this.play_url
           }
         ]
       },
@@ -62,9 +59,8 @@ export default {
     this.channel_name = sessionStorage.getItem("channel_name");
     this.channel_id = sessionStorage.getItem("channel_id");
     
-    console.log("video",this.channel_id,'----------',this.channel_name);
-    console.log("this  chID  chName--------------------------- ", this.channel_name,this.channel_id);
-    console.log("this", `"${this.play_url}"`);
+
+    console.log("this.play_url", `"${this.play_url}"`);
   },
   components: {
     videoPlayer

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import Load from './load1.vue'
+  import Load from './LiveLoad.vue'
   import PlayDialog from './PlayDialog.vue'
   export default {
     props:['item','aloneShow','shuaixin','pauseRecording'],

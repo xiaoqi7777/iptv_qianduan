@@ -2,11 +2,7 @@
   <div class="homeHeight">
 
     <!-- 初次加载中 -->
-     <LoadTwo v-show='loadTwoShow' />
-    
-    <Load v-show='loadShow'/>
-   
-
+    <Load v-show='loadShow|loadTwoShow'/>
     <div v-show="!loadTwoShow">
         <div class="hello" v-show='!loadShow'> 
           <div class="videoHeight">
@@ -23,9 +19,8 @@
 </template>
 <script>
 import Control from "./control";
-import Video from "./video";
-import Load from "./load";
-import LoadTwo from "./loadTwo";
+import Video from "./controllAbleVideo";
+import Load from "./LiveLoad";
 import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
@@ -53,7 +48,6 @@ export default {
     Control,
     Video,
     Load,
-    LoadTwo
   },
   watch: {
     play_url: {
@@ -236,7 +230,8 @@ export default {
       this.play_url = "";
     },
     initIo() {
-      this.io = socketIo("ws://47.96.129.127:3000", {
+      // ws://47.96.129.127:3000
+      this.io = socketIo("ws://192.168.1.165:3000", {
         query: { token: `${this.item.serial_number}`, client_type: "web" }
       });
       this.io.on("error", data => {

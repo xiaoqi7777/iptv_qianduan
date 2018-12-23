@@ -50,7 +50,7 @@
 <script>
 
   import PlayDialog from './PlayDialog.vue'
-  import Load from './load.vue'
+  import Load from './LiveLoad.vue'
   import ChannelList from './ChannelList.vue'
   import socketIo from "socket.io-client";
   export default {
@@ -107,7 +107,6 @@
     },
     methods: {
       initIo() {
-        console.log('初始化---------------------------io',)
         this.io = socketIo("ws://47.96.129.127:3000", {
           query: { token:`${this.serial_number}`, client_type: "web" }
         });

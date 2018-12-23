@@ -53,8 +53,8 @@
           align="center"
           width="180">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
-              <el-button size="small" class="table_list_btn table_edit" @click="getEdit(scope.row.id)"></el-button>
+            <el-tooltip class="item" effect="dark" content="播放" placement="top-start">
+              <el-button size="small" class="table_list_btn table_edit" @click="playMove(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -66,15 +66,23 @@
         :total="totalPage"
       >
       </el-pagination>
+    <!-- <PlayDialog v-if="play_dialog" :play="playUrl"  :types="`rtmp/mp4`"  :show.sync="play_dialog"></PlayDialog> -->
     </div>
   </section>
 </template>
 
 <script>
+  import PlayDialog from './PlayDialog.vue'
+
 export default {
   name: 'demand',
   mounted() {
     this.getDemandList ()
+    let routeData = this.$route.params.id
+    this.serial_number = routeData.serial_number
+    this.carrier = routeData.carrier
+    this.device_id = routeData.id
+    console.log(routeData,this.carrier)
   },
   filters: {
     typeFormate: function (val) {
@@ -87,7 +95,12 @@ export default {
         break;
       }
     }
-    },
+  },
+
+  components:{
+    PlayDialog
+  },
+
   data () {
     return {
       filters: {
@@ -110,7 +123,11 @@ export default {
       ],
       tableData: [],
       currentPage: 1,
-      totalPage: 1
+      totalPage: 1,
+      play_dialog: false,
+      carrier:'',
+      serial_number:'',
+      device_id:'',
     }
   },
   methods: {
@@ -128,6 +145,8 @@ export default {
         if(status) {
           Object.assign(params, this.filters)
           params.current_page = 1
+          params.carrier = this.carrier
+
           this.axio.post(`vod/list`, params)
           .then((response) => {
             if(response.data.ret.code === 0) {
@@ -137,6 +156,8 @@ export default {
             }
           })
         }else {
+          params.current_page = 1
+          params.carrier = this.carrier
           this.axio.post(`vod/list`, params)
           .then((response) => {
             if(response.data.ret.code === 0) {
@@ -152,9 +173,56 @@ export default {
       this.getDemandList ()
     },
 
-    getEdit () {
+    async exchangeUrl(obj){
+      let id = obj
+      let rs =  await this.axio.post('/vod/play',id)
+      console.log('提交地址返回数据',rs)
+    }, 
 
+    getDeviceInfo(){
+      let params={}
+      params.current_page = this.currentPage
+      this.axio.post(`device/list`, params)
+          .then((response) => {
+            if(response.data.ret.code === 0) {
+              this.totalPage = response.data.data.total
+              this.tableData = response.data.data.res
+              console.log('*******',this.tableData)
+            }
+          })
+    },
+
+    playMove (item) {
+
+      this.play_dialog = true
+
+      let {contentId,programId,programType,breakPoint,id} = item;
+      let obj = {contentId,programId,programType,breakPoint,carrier:this.carrier,id,device_id:this.device_id}
+
+      this.exchangeUrl(obj)
+
+      
+      // console.log(obj)
+      // if(programType === 0){
+      //   console.log('电影')
+      // }else if(programType === 1){
+      //   console.log('电视剧')
+      // }
+    },
+    io(){
+      this.io = socketIo("ws://192.168.1.165:3000", {
+        query: { token: `${this.serial_number}`, client_type: "web" }
+      });
+      this.io.on("error", data => {
+        console.log("error------", data);
+      });
+      this.io.on("connect_error", data => {
+        console.log("connect_error------", data);
+      });
     }
   },
+
+
+
 }
 </script>
