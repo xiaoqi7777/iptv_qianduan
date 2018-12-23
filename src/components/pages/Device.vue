@@ -131,7 +131,7 @@
           width="688px"
           :before-close="handleClose" >
           <section>
-              <IptvControl v-if='isShow' ref="play" :item='item'/>
+              <IptvControl :io='io' v-if='isShow' ref="play" :item='item'/>
           </section>
         </el-dialog>
 
@@ -146,6 +146,7 @@
   import DeviceDialog from './DeviceDialog.vue'
   import SSHDialog from './SSHDialog.vue'
   import IptvControl from './IptvControl'
+  import socketIo from "socket.io-client";
   export default {
     name: 'device',
     components: {
@@ -154,7 +155,8 @@
       IptvControl
     },
     mounted () {
-      this.getDeviceList ()
+        this.getDeviceList ()
+
     },
     data () {
       return {
@@ -190,9 +192,32 @@
         device_id: null,
         sshDialog: false,
         device: null,
+        serial_number:null,
+        io:null
       }
     },
     methods: {
+      initIo() {
+        console.log(this.serial_number,'+++++++++++++')
+        // ws://47.96.129.127:3000
+        this.io = socketIo("ws://192.168.1.165:3000", {
+          query: { token: `${this.serial_number}`, client_type: "web" }
+        });
+        this.io.on("error", data => {
+          console.log("error------", data);
+        });
+        this.io.on("connect_error", data => {
+          console.log("connect_error------", data);
+        });
+        this.io.on("record_stoped", data => {
+          this.pauseRecording = new Date().getTime();
+
+          this.$message({
+            message: "录制时间已到",
+            type: "warning"
+          });
+        });
+      },
       close(){
         // 用v-if 关闭 远程控制的设备： 的el-dialog  不然里面的东西还会存在 报错
         this.isShow = false
@@ -204,6 +229,7 @@
           name: `demand`,
           params: {
             id: item,
+            io:this.io
           }
         })
       },
@@ -239,6 +265,9 @@
               this.currentPage = 1
               this.totalPage = response.data.data.total
               this.tableData = response.data.data.res
+              this.serial_number= this.tableData[0].serial_number
+              this.initIo()
+
             }
           })
         }else {
@@ -247,6 +276,8 @@
             if(response.data.ret.code === 0) {
               this.totalPage = response.data.data.total
               this.tableData = response.data.data.res
+              this.serial_number = this.tableData[0].serial_number
+              this.initIo()
               console.log('*******',this.tableData)
             }
           })
@@ -293,7 +324,8 @@
         this.currentPage = val
         this.getDeviceList ()
       },
-    }
+    },
+ 
   }
 </script>
 

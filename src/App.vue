@@ -163,11 +163,11 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
 }
 
 .table_edit {
-    background-image: url('./assets/btn_edit_a.png') !important;
+    background-image: url('./assets/demandPlay.png') !important;
 }
 
 .table_edit.is-disabled {
-    background-image: url('./assets/btn_edit.png') !important;
+    background-image: url('./assets/demandDisPlay.png') !important;
 }
 
 .table_delete {

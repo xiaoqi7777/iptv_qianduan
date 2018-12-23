@@ -24,7 +24,7 @@ import Load from "./Load";
 import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
-  props: ["item"],
+  props: ["item","io"],
   data() {
     return {
       loadShow: false,
@@ -36,7 +36,6 @@ export default {
       keng: true,
       //截获 播放时候 可以录制 传给Control 一个非空 做判断
       control: "",
-      io: null,
       mediaCode: null,
       frequency: 0,
       pauseRecording: null,
@@ -175,13 +174,10 @@ export default {
         device_id: this.item.id,
         type: "vod"
       };
-      let getData = await this.axio.post(
-        "/device/get_current_single_media_task",
-        obj
-      );
+      let getData = await this.axio.post( "/device/get_current_single_media_task", obj);
       let data = getData.data;
       this.mediaCode = data.ret.code;
-      console.log("查询 盒子的状态", this.mediaCode);
+      console.log("查询 盒子的状态", data);
       if (data.data) {
         this.play_url = data.data.play_url;
       }
@@ -228,26 +224,26 @@ export default {
       this.keng = false;
       this.play_url = "";
     },
-    initIo() {
-      // ws://47.96.129.127:3000
-      this.io = socketIo("ws://192.168.1.165:3000", {
-        query: { token: `${this.item.serial_number}`, client_type: "web" }
-      });
-      this.io.on("error", data => {
-        console.log("error------", data);
-      });
-      this.io.on("connect_error", data => {
-        console.log("connect_error------", data);
-      });
-      this.io.on("record_stoped", data => {
-        this.pauseRecording = new Date().getTime();
+    // initIo() {
+    //   // ws://47.96.129.127:3000
+    //   this.io = socketIo("ws://192.168.1.165:3000", {
+    //     query: { token: `${this.item.serial_number}`, client_type: "web" }
+    //   });
+    //   this.io.on("error", data => {
+    //     console.log("error------", data);
+    //   });
+    //   this.io.on("connect_error", data => {
+    //     console.log("connect_error------", data);
+    //   });
+    //   this.io.on("record_stoped", data => {
+    //     this.pauseRecording = new Date().getTime();
 
-        this.$message({
-          message: "录制时间已到",
-          type: "warning"
-        });
-      });
-    }
+    //     this.$message({
+    //       message: "录制时间已到",
+    //       type: "warning"
+    //     });
+    //   });
+    // }
   },
 
   beforeDestroy() {
@@ -257,7 +253,6 @@ export default {
     this.time1 = null;
   },
   mounted() {
-    console.log("item++++++++++++++", this.item);
     //查询盒子状态
     this.mediaStatus();
     //canvans初始化

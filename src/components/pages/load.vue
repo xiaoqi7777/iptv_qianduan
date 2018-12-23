@@ -19,31 +19,29 @@
 </template>
 
 <script>
-    export default {
-        data() {
-            return {
-                
-                loading2: true
-            };
-            }
-    }
+export default {
+  data() {
+    return {
+      loading2: true
+    };
+  }
+};
 </script>
 
 <style scoped>
-.laod{
-    position: relative;
-    width: 1077px;
-    height: 457px;
-    background-color: black;
+.laod {
+  position: relative;
+  width: 1077px;
+  height: 457px;
+  background-color: black;
 }
-.title{
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    color: papayawhip;
-    
+.title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  color: papayawhip;
 }
 </style>

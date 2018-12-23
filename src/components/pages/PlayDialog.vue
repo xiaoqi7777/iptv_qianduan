@@ -68,6 +68,7 @@
     },
     methods: {
       configurationClose () {
+        this.$emit('stopPlay')
         this.$emit('update:show', false)
       },
       // listen event

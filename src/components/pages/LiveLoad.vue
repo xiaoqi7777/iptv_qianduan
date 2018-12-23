@@ -26,7 +26,7 @@ import Load from './Load'
           }
         },
         mounted(){
-          console.log(this.show)
+          // console.log(this.show)
         }
 
     }
