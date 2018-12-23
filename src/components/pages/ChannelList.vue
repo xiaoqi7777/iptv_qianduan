@@ -16,13 +16,13 @@
             <img v-show="!isRecording" @click="starRecording" src="../../assets/btn_rc.png" alt="">
           </span>  
       </section>
-      <load v-if="isLoad" :show.sync='isLoad' />
+      <LiveLoad v-if="isLoad" :show.sync='isLoad' />
       <PlayDialog v-if="isPlay" :play="playUrl" :types="`rtmp/mp4`" :show.sync="isPlay" :name='item.name'></PlayDialog>
   </div>
 </template>
 
 <script>
-  import Load from './LiveLoad.vue'
+  import LiveLoad from './LiveLoad.vue'
   import PlayDialog from './PlayDialog.vue'
   export default {
     props:['item','aloneShow','shuaixin','pauseRecording'],
@@ -45,7 +45,7 @@
       }
     },
     components:{
-      Load,
+      LiveLoad,
       PlayDialog
     },
     watch:{

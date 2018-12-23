@@ -50,7 +50,6 @@
 <script>
 
   import PlayDialog from './PlayDialog.vue'
-  import Load from './LiveLoad.vue'
   import ChannelList from './ChannelList.vue'
   import socketIo from "socket.io-client";
   export default {
@@ -68,7 +67,6 @@
     },
     components: {
       PlayDialog,
-      Load,
       ChannelList
     },
     filters: {

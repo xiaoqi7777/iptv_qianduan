@@ -10,7 +10,7 @@
             <Video  :play_url='play_url' @close='closed' v-if="this.play_url"  />
           </div>
           <div class="controlHeight">
-            <Control class="controlPlce" :isBack='isBack' :fristChange='control' :show='test' @close='closed' :pauseRecording='pauseRecording'  :play_url='play_url' :io="io"/>
+            <Control class="controlPlce" :isBack='isBack' :fristChange='control' :show='ControlIsShow' @close='closed' :pauseRecording='pauseRecording'  :play_url='play_url' :io="io"/>
           </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
 <script>
 import Control from "./control";
 import Video from "./controllAbleVideo";
-import Load from "./LiveLoad";
+import Load from "./Load";
 import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
@@ -28,10 +28,9 @@ export default {
   data() {
     return {
       loadShow: false,
-      test: false,
+      ControlIsShow: false,
       play_url: "",
       play_name: "",
-      cs: "1",
       loadTwoShow: true,
       //作用  返回时候 控制init() 里的thz.axios()不执行
       keng: true,
@@ -53,9 +52,9 @@ export default {
     play_url: {
       handler: function(val, oldVal) {
         if (val) {
-          this.test = false;
+          this.ControlIsShow = false;
         } else {
-          this.test = true;
+          this.ControlIsShow = true;
         }
       },
       immediate: true

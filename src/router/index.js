@@ -38,6 +38,7 @@ const router = new Router({
           path: '/demand/:id',
           name: 'demand',
           component: Demand,
+          hidden: true,
           meta: {
             title: '点播管理'
           }
