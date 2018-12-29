@@ -107,7 +107,7 @@
                   ></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
-                  <el-button size="small" class="table_list_btn table_edit" @click="getEdit(scope.row.id)"></el-button>
+                  <el-button size="small" class="table_list_btn table_edit"  :disabled="scope.row.status === 'offline'"  @click="getEdit(scope.row.id)"></el-button>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="远程ssh" placement="top-start">
                   <el-button size="small" class="table_list_btn device_ssh" :disabled="scope.row.status === 'offline'"  @click="goSSH(scope.row)"></el-button>
@@ -198,9 +198,8 @@
     },
     methods: {
       initIo() {
-        console.log(this.serial_number,'+++++++++++++')
         // ws://47.96.129.127:3000
-        this.io = socketIo("ws://192.168.1.165:3000", {
+        this.io = socketIo("ws://47.96.129.127:3000", {
           query: { token: `${this.serial_number}`, client_type: "web" }
         });
         this.io.on("error", data => {
@@ -209,6 +208,9 @@
         this.io.on("connect_error", data => {
           console.log("connect_error------", data);
         });
+        this.io.on('connect',data=>{
+          console.log('socket io init success')
+        })
         this.io.on("record_stoped", data => {
           this.pauseRecording = new Date().getTime();
 
@@ -217,14 +219,16 @@
             type: "warning"
           });
         });
+
       },
       close(){
-        // 用v-if 关闭 远程控制的设备： 的el-dialog  不然里面的东西还会存在 报错
         this.isShow = false
-        //  console.log('ref*****************************ref',this.$refs.play.test1()) 
-        console.log('close******************')
       },
-      goToDemand(item){
+      async goToDemand(item){
+        if(!this.io){
+          await this.initIo()
+        }
+
         this.$router.push({
           name: `demand`,
           params: {
@@ -233,9 +237,12 @@
           }
         })
       },
-      dialogVisibles(boolean,item){
+      async dialogVisibles(boolean,item){
+        if(!this.io){
+          await this.initIo()
+        }
+
         this.item = item
-        console.log('打开播放器 打印id',this.id)
         this.isShow = true
         this.dialogVisible = boolean
         this.nameId = item.name
@@ -265,9 +272,11 @@
               this.currentPage = 1
               this.totalPage = response.data.data.total
               this.tableData = response.data.data.res
-              this.serial_number= this.tableData[0].serial_number
-              this.initIo()
-
+              if(this.tableData[0].status === 'online'){
+                this.serial_number = this.tableData[0].serial_number
+              }else{
+                this.serial_number = this.tableData[1].serial_number
+              }
             }
           })
         }else {
@@ -276,9 +285,11 @@
             if(response.data.ret.code === 0) {
               this.totalPage = response.data.data.total
               this.tableData = response.data.data.res
-              this.serial_number = this.tableData[0].serial_number
-              this.initIo()
-              console.log('*******',this.tableData)
+              if(this.tableData[0].status === 'online'){
+                this.serial_number = this.tableData[0].serial_number
+              }else{
+                this.serial_number = this.tableData[1].serial_number
+              }
             }
           })
         }

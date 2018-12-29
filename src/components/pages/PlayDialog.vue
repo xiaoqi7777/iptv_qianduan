@@ -23,78 +23,70 @@
 </template>
 
 <script>
+import "video.js/dist/video-js.css";
+import { videoPlayer } from "vue-video-player";
+// import 'videojs-contrib-hls/dist/videojs-contrib-hls.js'
+import "videojs-flash";
 
-  import 'video.js/dist/video-js.css'
-  import {videoPlayer} from 'vue-video-player'
-  // import 'videojs-contrib-hls/dist/videojs-contrib-hls.js'
-  import 'videojs-flash'
-
-  export default {
-    name: 'play',
-    props: ['show', 'play', 'types','name'],
-    components: {
-      videoPlayer
-    },
-    mounted () {
-      Object.assign(this.playerOptions, {
-        sources: [{
+export default {
+  name: "play",
+  props: ["show", "play", "types", "name"],
+  components: {
+    videoPlayer
+  },
+  mounted() {
+    Object.assign(this.playerOptions, {
+      sources: [
+        {
           type: "rtmp/mp4",
           src: this.play
-        }]
-      })
-    },
-    computed: {
-      player() {
-        return this.$refs.videoPlayer.player
-      }
-    },
-    data () {
-      return {
-        dialog_title: '',
-        controls: true,
-        preload: "metadata",
-        reset: true,
-        playerOptions: {
-          // videojs options
-          muted: true,
-          language: 'en',
-          height: '500',
-          width: '100%',
-          autoplay: false,
-          preload: true,
-          techOrder: ['flash'],
         }
+      ]
+    });
+  },
+  computed: {
+    player() {
+      return this.$refs.videoPlayer.player;
+    }
+  },
+  data() {
+    return {
+      dialog_title: "",
+      controls: true,
+      preload: "metadata",
+      reset: true,
+      playerOptions: {
+        // videojs options
+        muted: true,
+        language: "en",
+        height: "500",
+        width: "100%",
+        autoplay: true,
+        preload: true,
+        techOrder: ["flash"]
       }
+    };
+  },
+  methods: {
+    configurationClose() {
+      this.$emit("stopPlay");
+      this.$emit("update:show", false);
     },
-    methods: {
-      configurationClose () {
-        this.$emit('stopPlay')
-        this.$emit('update:show', false)
-      },
-      // listen event
-      onPlayerPlay(player) {
-        // console.log('player play!', player)
-      },
-      onPlayerPause(player) {
-        // console.log('player pause!', player)
-      },
-      // ...player event
+    // listen event
+    onPlayerPlay(player) {},
+    onPlayerPause(player) {},
 
-      // or listen state event
-      playerStateChanged(playerCurrentState) {
-        // console.log('player current update state', playerCurrentState)
-      },
-
-      // player is ready
-      playerReadied(player) {
-        console.log('the player is readied', player)
-        // you can use it to do something...
-        // player.[methods]
-      }
+    // or listen state event
+    playerStateChanged(playerCurrentState) {
+      // console.log('player current update state', playerCurrentState)
+    },
+    // player is ready
+    playerReadied(player) {
+      console.log("the player is readied", player);
     }
   }
+};
 </script>
 
 <style>
-
 </style>

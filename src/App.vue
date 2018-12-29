@@ -161,13 +161,17 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
   background-position: center;
   background-color: transparent; 
 }
+.table_operation {
+    background-image: url('./assets/btn_play_a.png') !important;
+}
+
 
 .table_edit {
-    background-image: url('./assets/demandPlay.png') !important;
+    background-image: url('./assets/btn_edit_a.png') !important;
 }
 
 .table_edit.is-disabled {
-    background-image: url('./assets/demandDisPlay.png') !important;
+    background-image: url('./assets/btn_edit.png') !important;
 }
 
 .table_delete {
@@ -193,7 +197,9 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
 .device_channelList.is-disabled {
   background-image: url('./assets/btn_playlist.png') !important;
 }
-
+.device_dibblingList.is-disabled {
+  background-image: url('./assets/btn_list_a.png') !important;
+}
 .device_dibblingList {
   background-image: url('./assets/btn_list.png') !important;
 }
@@ -246,10 +252,12 @@ body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, l
   background-image: url('./assets/btn_addnew_a.png');
 }
 .controlL {
-  background-image: url('./assets/controlL.png') !important;
+  background-image: url('./assets/controlL.png') !important ;
+  width: 30px;
 }
 .control {
   background-image: url('./assets/control.png') !important;
+  width: 30px;
 }
 
 .demandL {

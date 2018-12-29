@@ -76,20 +76,10 @@ export default {
       pauseRecording(){
         if(this.pauseRecording === this.record_id){
           this.record_id = ""
-          console.log('jinlail  ---------')
         }
       },
-    // 'fristChange':{
-    //     handler:function(a,b){
-    //       console.log('1111111111新的',a)
-    //       console.log('1111111111老的',b)
-
-    //     },
-    //     immediate: true
-    //   }
     fristChange: {
       handler: function() {
-        console.log("******************************", this.fristChange);
         if (!this.record_id) {
           this.record_id = sessionStorage.getItem("record_id");
         }
@@ -150,22 +140,17 @@ export default {
       let top = e.path[0].offsetTop;
       e.path[0].style.left = left - 2 + "px";
       e.path[0].style.top = top - 2 + "px";
-      // console.log('onUp')
     },
     onClick(key_code, e) {
       let left = e.path[0].offsetLeft;
       let top = e.path[0].offsetTop;
       e.path[0].style.left = left + 2 + "px";
       e.path[0].style.top = top + 2 + "px";
-      // console.log("onClick", e);
-      //    this.send( key_code)
-      // console.log("按下", key_code, this.io);
 
       if(key_code === 'back' && this.isBack === 'on'){
           return
       }
       if(this.disable){
-        console.log('----------------------------',this.disable)
         this.disable = false
         this.io.emit("key_board", {
           value: key_code
@@ -174,14 +159,12 @@ export default {
           this.disable = true
         },1000)
       }
-      // this.$root.test_1()
-      // this.$root.send({ cmd: "key", code: key_code });
+
     },
     onStop() {
       console.log("抬起");
     },
     async pause() {
-      // console.log("停止播放----------");
       let obj = {
         play_url: this.play_url
       };
@@ -190,10 +173,8 @@ export default {
         this.io.emit("stop_single_media", obj);
         this.count = 0;
         this.io.on("stop_single_media_reply", data => {
-          console.log('-------------')
           this.count++;
           if (this.count == 1) {
-          // console.log('--------',thz.count)
             this.io.emit("key_board", {
               value: "back"
             });
@@ -231,8 +212,6 @@ export default {
       }
        
       this.play_name = null
-        // console.log('录制成功')
-      console.log('继续走了。。。。。。。。。。。。。。')
       let isSuccess = "";
       //获取本地 传递的录制信息
       this.channel_name = sessionStorage.getItem("channel_name");
@@ -242,7 +221,6 @@ export default {
       this.record_id = sessionStorage.getItem("record_id");
 
       let thz = this;
-      // console.log("获取本地存储信息", this.channel_name,this.channel_id,this.input_url,this.device_id);
 
       let obj = {
         channel_id: this.channel_id,
@@ -250,36 +228,23 @@ export default {
         device_id: this.device_id,
         channel_name: this.channel_name
       };
-      //判断数据不能为空
-      // if (
-      //   !this.channel_name &&
-      //   !this.input_url &&
-      //   !this.device_id &&
-      //   !this.channel_name
-      // ) {
-      //   console.log("播放录制 => 数据为空");
-      //   return null;
-      // }
+
       //调用开启录制接口
       this.axio
         .post("/channel/start_record", obj)
         .then(res => {
-          console.log("开启录制", res.data);
           if (res.data.ret.code === 0) {
-            // console.log("开启录制成功", res.data.data.record_id);
             thz.record_id = res.data.data.record_id;
             isSuccess = res.data.ret.code;
           } else {
-            // console.log("开启录制失败", res.data.ret.cn);
             isSuccess = res.data.ret.code;
           }
         })
         .catch(err => {
-          // console.log("开启录制失败", err);
+          console.log("开启录制失败", err);
           return 333;
         });
       this.isShow = false;
-      console.log('isSuccess',isSuccess)
       return true;
     },
 
@@ -292,10 +257,8 @@ export default {
         channel_name: this.channel_name
       };
 
-      // console.log("停止录制", obj);
       //判断数据不能为空
       if (!this.record_id && !this.record_id) {
-        console.log("停止录制=> 数据为空");
         return null;
       }
       //调用停止录制接口
@@ -303,10 +266,9 @@ export default {
         .put("/channel/stop_record", obj)
         .then(res => {
           if (res.data.ret.code === 0) {
-            // console.log("停止录制成功", res.data.ret.cn);
             thz.record_id = "";
           } else {
-            // console.log("停止录制失败", res.data.ret.cn);
+            console.log("停止录制失败", res.data.ret.cn);
           }
         })
         .catch(err => {
@@ -315,11 +277,6 @@ export default {
     }
   },
 
-  mounted() {
-
-    //     })
-    // console.log('this.play_url',this.play_url)
-  }
 };
 </script>
 

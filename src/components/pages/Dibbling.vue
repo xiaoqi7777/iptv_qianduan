@@ -89,174 +89,167 @@
 </template>
 
 <script>
+import PlayDialog from "./PlayDialog.vue";
 
-  import PlayDialog from './PlayDialog.vue'
-
-  export default {
-    name: 'dibbling',
-    components: {
-      PlayDialog
-    },
-    mounted () {
-      this.getDibblingList ()
-    },
-    data () {
-      return {
-        filters: {
-          name: '',
-          user_name: ''
-        },
-        tableData: [],
-        totalPage: null,
-        currentPage: 1,
-        play_value: null,
-        play_dialog: false
-      }
-    },
-    filters:{
-      filtersTime:function(value){
-          let data = value.replace(/\:/g,(item,index,arr)=>{
-            if(index<8){
-              return '-'
-            }else{
-              return item
-            }
-          })
-          return data
-      }
-    },
-    methods: {
-      goBack () {
-        this.$router.go(-1)
+export default {
+  name: "dibbling",
+  components: {
+    PlayDialog
+  },
+  mounted() {
+    this.getDibblingList();
+  },
+  data() {
+    return {
+      filters: {
+        name: "",
+        user_name: ""
       },
+      tableData: [],
+      totalPage: null,
+      currentPage: 1,
+      play_value: null,
+      play_dialog: false
+    };
+  },
+  filters: {
+    filtersTime: function(value) {
+      let data = value.replace(/\:/g, (item, index, arr) => {
+        if (index < 8) {
+          return "-";
+        } else {
+          return item;
+        }
+      });
+      return data;
+    }
+  },
+  methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
 
-      getDibblingList () {
-        let status = false, params = {
+    getDibblingList() {
+      let status = false,
+        params = {
           current_page: this.currentPage,
-          device_id: parseInt(this.$route.params.id),
+          device_id: parseInt(this.$route.params.id)
+        };
+      if (this.$route.params.channel_name) {
+        params.channel_name = this.$route.params.channel_name;
+      }
+      for (let value of Object.values(this.filters)) {
+        if (value !== "") {
+          status = true;
+          break;
         }
-        if(this.$route.params.channel_name) {
-          params.channel_name = this.$route.params.channel_name
-        }
-        for(let value of Object.values(this.filters)) {
-          if(value !== '') {
-            status = true;
-            break;
+      }
+      if (status) {
+        Object.assign(params, this.filters);
+        params.current_page = 1;
+        this.axio.post(`record/list`, params).then(response => {
+          if (response.data.ret.code === 0) {
+            this.currentPage = 1;
+
+            this.totalPage = response.data.data.total;
+            this.tableData = response.data.data.res;
           }
-        }
-        if(status) {
-          Object.assign(params, this.filters)
-          params.current_page = 1
-          this.axio.post(`record/list`, params)
-          .then((response) => {
-            if(response.data.ret.code === 0) {
-              this.currentPage = 1
+        });
+      } else {
+        this.axio.post(`record/list`, params).then(response => {
+          if (response.data.ret.code === 0) {
+            this.totalPage = response.data.data.total;
+            this.tableData = response.data.data.res;
+          }
+        });
+      }
+    },
 
-              this.totalPage = response.data.data.total
-                            console.log('******1********',this.totalPage)
-              this.tableData = response.data.data.res
-            }
-          })
-        }else {
-          this.axio.post(`record/list`, params)
-          .then((response) => {
-            if(response.data.ret.code === 0) {
-              this.totalPage = response.data.data.total
-              this.tableData = response.data.data.res
-            }
-          })
-        }
-      },
+    //修改当前页
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getDibblingList();
+    },
 
-      //修改当前页
-      handleCurrentChange(val) {
-        this.currentPage = val
-        this.getDibblingList ()
-      },
+    playChannel(value) {
+      this.play_value = value.play_url;
+      this.play_dialog = true;
+    },
 
-      playChannel (value) {
-        console.log('value',value)
-        // this.play_value = {
-        //   play_url: value.play_url,
-        //   name: value.file_name
-        // }
-        this.play_value =value.play_url
-        this.play_dialog = true
-      },
+    fileDownload(scope) {
+      window.location.href = scope.play_url;
+    },
 
-      fileDownload (scope) {
-        window.location.href = scope.play_url
-      },
-
-      deleteDibbling (scope) {
-        const h = this.$createElement;
-        this.$msgbox({
-          title: '删除文件 ' + scope.file_name,
-          message: h('p', null, [
-            h('span', null, '确定删除该文件吗？')
-          ]),
-          showCancelButton: true,
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          beforeClose: (action, instance, done) => {
-            if (action === 'confirm') {
-              instance.confirmButtonLoading = true;
-              instance.confirmButtonText = '删除中...';
-              this.axio.post(`record/delete`, {
+    deleteDibbling(scope) {
+      const h = this.$createElement;
+      this.$msgbox({
+        title: "删除文件 " + scope.file_name,
+        message: h("p", null, [h("span", null, "确定删除该文件吗？")]),
+        showCancelButton: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        beforeClose: (action, instance, done) => {
+          if (action === "confirm") {
+            instance.confirmButtonLoading = true;
+            instance.confirmButtonText = "删除中...";
+            this.axio
+              .post(`record/delete`, {
                 device_id: scope.device_id,
                 channel_name: scope.channel_name,
                 file_name: scope.file_name
               })
-              .then((response) => {
-                if(response.data.ret.code === 0) {
+              .then(response => {
+                if (response.data.ret.code === 0) {
                   done();
                   instance.confirmButtonLoading = false;
-                  this.getDibblingList ()
-                }else {
+                  this.getDibblingList();
+                } else {
                   done();
                   instance.confirmButtonLoading = false;
                   this.$notify({
-                    title: '错误',
+                    title: "错误",
                     message: `文件删除失败: ${this.errLanguage(response)}`,
-                    type: 'error'
+                    type: "error"
                   });
                 }
-              })
-            } else {
-              done();
-              instance.confirmButtonLoading = false;
-            }
+              });
+          } else {
+            done();
+            instance.confirmButtonLoading = false;
           }
-        }).then(action => {
+        }
+      })
+        .then(action => {
           this.$notify({
-            type: 'success',
-            message: '删除成功'
-          })
-        }).catch(() => {
-          this.$notify({
-            type: 'info',
-            message: '已取消删除'
-          })
+            type: "success",
+            message: "删除成功"
+          });
         })
-      }
+        .catch(() => {
+          this.$notify({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>
-  .channel_play {
-    background-image: url('../../assets/btn_view.png');
-    background-color: #409EFF !important;
-    background-size: .3rem;
-  }
+.channel_play {
+  background-image: url("../../assets/btn_view.png");
+  background-color: #409eff !important;
+  background-size: 0.3rem;
+}
 
-  .channel_download {
-    vertical-align: text-bottom;
-    font-size: 0.3rem;
-    background-color: transparent !important;
-  }
+.channel_download {
+  vertical-align: text-bottom;
+  font-size: 0.3rem;
+  background-color: transparent !important;
+}
 
-  .title-content {
-    color: #409eff;
-  } 
+.title-content {
+  color: #409eff;
+}
 </style>

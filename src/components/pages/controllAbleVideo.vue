@@ -46,20 +46,10 @@ export default {
     channel_id:0
     };
   },
-  beforeDestroy(){
-    console.log('播放器关闭了播放器关闭了播放器关闭了播放器关闭了播放器关闭了播放器关闭了播放器关闭了')
-  },
   mounted() {
-    // Object.assign(this.playerOptions, {
-    //     sources: [{
-    //     type: this.types,
-    //     src: this.play.play_url
-    //     }]
-    // })
     this.channel_name = sessionStorage.getItem("channel_name");
     this.channel_id = sessionStorage.getItem("channel_id");
     
-
     console.log("this.play_url", `"${this.play_url}"`);
   },
   components: {

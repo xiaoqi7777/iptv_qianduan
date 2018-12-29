@@ -24,7 +24,7 @@ import Load from "./Load";
 import socketIo from "socket.io-client";
 export default {
   name: "HelloWorld",
-  props: ["item","io"],
+  props: ["item", "io"],
   data() {
     return {
       loadShow: false,
@@ -39,13 +39,13 @@ export default {
       mediaCode: null,
       frequency: 0,
       pauseRecording: null,
-      isBack:null
+      isBack: null
     };
   },
   components: {
     Control,
     Video,
-    Load,
+    Load
   },
   watch: {
     play_url: {
@@ -60,16 +60,13 @@ export default {
     }
   },
   methods: {
-
     async getMediaState(message) {
-
       let getData = await this.axio.post(
         "/device/get_current_single_media_task",
         { device_id: this.item.id, type: "vod" }
       );
       let data = getData.data.data;
       if (data && data.play_status) {
-
         sessionStorage.setItem("channel_name", message.channel_name);
         sessionStorage.setItem("channel_id", message.channel_id);
         sessionStorage.setItem("device_id", this.item.id);
@@ -80,10 +77,9 @@ export default {
         this.loadTwoShow = true;
         this.loadShow = false;
         this.play_url = message.play_url;
-
       } else {
         clearInterval(this.time1);
-        
+
         this.loadTwoShow = false;
         this.loadShow = true;
         this.time1 = setInterval(() => {
@@ -94,7 +90,6 @@ export default {
     monitorPlayUrl() {
       this.io.on("single_media_play_url", message => {
         sessionStorage.removeItem("channel_name");
-        console.log("--******-进来了", message);
         if (this.frequency === 0) {
           this.getMediaState(message);
         }
@@ -103,19 +98,15 @@ export default {
     },
     //监视图片 更新
     monitorImg(img, cvs) {
-      this.io.on("isBack",data=>{
-        console.log('----播放back',data)
-        this.isBack = data.isBack
-      })
+      this.io.on("isBack", data => {
+        this.isBack = data.isBack;
+      });
       this.io.on("img", message => {
         this.loadTwoShow = false;
         img.src = `data:image/jpeg;base64,${message.value}`;
-        // console.log('----播放地址')
-        // let dat = message.date;
         img.onload = function() {
           var ctx = cvs.getContext("2d");
           ctx.drawImage(img, 0, 0, 800, 450);
-          // console.log("获取到显示->图片");
         };
         this.frequency = 0;
       });
@@ -149,7 +140,6 @@ export default {
     //判断播放状态
     playStatus(data) {
       if (data.data.play_status) {
-        console.log("可以播放---------------------");
         //本地临时存储 设备ID 和 播放地址
         sessionStorage.setItem("input_url", this.play_url);
         sessionStorage.setItem("device_id", this.item.id);
@@ -174,14 +164,16 @@ export default {
         device_id: this.item.id,
         type: "vod"
       };
-      let getData = await this.axio.post( "/device/get_current_single_media_task", obj);
+      let getData = await this.axio.post(
+        "/device/get_current_single_media_task",
+        obj
+      );
       let data = getData.data;
       this.mediaCode = data.ret.code;
       console.log("查询 盒子的状态", data);
       if (data.data) {
         this.play_url = data.data.play_url;
       }
-      // console.log('---->',this.mediaCode,this.play_url)
       //判断1、data.ret.code === 0 有任务
       if (this.mediaCode === 0 && this.play_url) {
         this.recordStatus();
@@ -223,27 +215,7 @@ export default {
       this.loadTwoShow = true;
       this.keng = false;
       this.play_url = "";
-    },
-    // initIo() {
-    //   // ws://47.96.129.127:3000
-    //   this.io = socketIo("ws://192.168.1.165:3000", {
-    //     query: { token: `${this.item.serial_number}`, client_type: "web" }
-    //   });
-    //   this.io.on("error", data => {
-    //     console.log("error------", data);
-    //   });
-    //   this.io.on("connect_error", data => {
-    //     console.log("connect_error------", data);
-    //   });
-    //   this.io.on("record_stoped", data => {
-    //     this.pauseRecording = new Date().getTime();
-
-    //     this.$message({
-    //       message: "录制时间已到",
-    //       type: "warning"
-    //     });
-    //   });
-    // }
+    }
   },
 
   beforeDestroy() {
@@ -256,9 +228,6 @@ export default {
     //查询盒子状态
     this.mediaStatus();
     //canvans初始化
-    if (!this.io) {
-      this.initIo();
-    }
   }
 };
 </script>

@@ -2,6 +2,7 @@
   <section class="demand-wrapper">
     <div class="tool_title">
       <span>点播列表</span>
+      <el-button class="device_toolbtn tool_back" type="primary" round @click="goBack">返回</el-button>
     </div>
     <div>
 			<el-form :inline="true" ref="filters" class="demo-form-inline toolbar" :model="filters">
@@ -54,7 +55,7 @@
           width="180">
           <template slot-scope="scope">
             <el-tooltip class="item" effect="dark" content="播放" placement="top-start">
-              <el-button size="small" class="table_list_btn table_edit" @click="playMove(scope.row)"></el-button>
+              <el-button size="small" class="table_list_btn table_operation" @click="playMove(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -67,8 +68,18 @@
       >
       </el-pagination>
       <LiveLoad v-if="isLoad" :show.sync='isLoad'   />
-
-      <PlayDialog v-if="play_dialog" :play="playUrl"  @stopPlay="stopPlayFn" :types="`rtmp/mp4`"  :show.sync="play_dialog"></PlayDialog>
+      <el-dialog
+        :title="playName+'---'+'连续剧：'"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <el-button  v-for="(item,index) in seriesData" :key="index" circle @click="selectedSeriesNum(item)">{{item.newProgramName}}</el-button>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="isOk">确 定</el-button>
+        </span>
+      </el-dialog>
+      <PlayDialog v-if="play_dialog" :play="playUrl" :name='playName' @stopPlay="stopPlayFn" :types="`rtmp/mp4`"  :show.sync="play_dialog"></PlayDialog>
     </div>
   </section>
 </template>
@@ -90,6 +101,8 @@ export default {
     this.getDemandList();
     //查询播放状态
     this.mediaStatus()
+    //监视播放地址
+    this.monitorPlayUrl()
   },
   filters: {
     typeFormate: function(val) {
@@ -108,12 +121,7 @@ export default {
     PlayDialog,
     LiveLoad
   },
-  /**
-   * 1、找后端 查询 盒子的状态是啥
-   *    mediaStatus
-   * 2、是否可以播放
-   *    playStatus
-   */
+
   data() {
     return {
       filters: {
@@ -146,26 +154,47 @@ export default {
       time:null,
       isLoad:false,
       playUrl:null,
-      io:null
+      io:null,
+      playName:null,
+      frequency:0,
+      dialogVisible: false,
+      seriesNumData:[],
+      seriesData:[]
     };
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
+    isOk(){
+      console.log( this.playName,this.seriesNumData)
+      this.dialogVisible = false
+      let obj  = {...this.seriesNumData,programName:this.playName,id:this.seriesNumData.vodId}
+      console.log('isOk',obj)
+      this.playMove(obj)
+    },
+    selectedSeriesNum(item){
+      this.seriesNumData = item
+    },
+    handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+    },
     stopPlayFn(){
-      console.log('停留')
       let obj ={ play_url: this.play_url }
       this.io.emit("stop_single_media", obj);
       this.count = 0;
       this.io.on("stop_single_media_reply", data => {
         this.play_url = null
         this.playUrl = null
-          console.log('------停止成功')
           this.count++;
           if (this.count == 1) {
-          // console.log('--------',thz.count)
             this.io.emit("key_board", {
               value: "back"
             });
-
             this.$message({
               message: "取消播放",
               type: "success",
@@ -176,20 +205,31 @@ export default {
     },
     // 查询盒子状态
     async playStatus(data){
+      console.log('--------查状态')
       if (data.data && data.data.play_status) {
         this.isLoad = false
         this.play_dialog = true
         this.playUrl = this.play_url
-        console.log("可以播放---------------------",this.isLoad,this.play_dialog);
       }else{
         //再次查询
         clearInterval(this.time);
         this.time = setInterval(() => {
             this.mediaStatus();
-            console.log('---------')
           }, 1000);
         }
     },
+    
+    monitorPlayUrl() {
+      console.log('-*---',this.io)
+      if(this.io){
+        this.io.on("single_media_play_url", message => {
+            this.play_url = message.play_url;
+            this.playName = message.channel_name;
+            this.mediaStatus()
+        });
+      }
+    },
+
     async mediaStatus(){
         let obj = {
             device_id: this.device_id,
@@ -198,17 +238,16 @@ export default {
         let getData = await this.axio.post( "/device/get_current_single_media_task", obj);
         let data = getData.data;
         this.mediaCode = data.ret.code;
-        console.log("查询 盒子的状态", data);
         if (data.data) {
           clearInterval(this.time);
           this.play_url = data.data.play_url;
+          this.playName = data.data.name
+
         }
         //判断1、data.ret.code === 0 同时有播放地址 => 任务
         if (this.mediaCode === 0 && this.play_url) {
           this.playStatus(data);
-          console.log('++++++++',this.isLoad)
         } 
-        return data.data
     },
     // 查询点播列表
     getDemandList() {
@@ -235,7 +274,6 @@ export default {
           }
         });
       } else {
-        params.current_page = 1;
         params.carrier = this.carrier;
         this.axio.post(`vod/list`, params).then(response => {
           if (response.data.ret.code === 0) {
@@ -253,8 +291,8 @@ export default {
 
     async exchangeUrl(obj) {
       let id = obj;
-      let rs = await this.axio.post("/vod/play", id);
-      console.log("提交地址返回数据", rs);
+      console.log('exchangeUrlid',id)
+      await this.axio.post("/vod/play", id);
     },
 
     getDeviceInfo() {
@@ -264,7 +302,6 @@ export default {
         if (response.data.ret.code === 0) {
           this.totalPage = response.data.data.total;
           this.tableData = response.data.data.res;
-          console.log("*******", this.tableData);
         }
       });
     },
@@ -276,6 +313,23 @@ export default {
       });
     },
     async playMove(item) {
+
+      if(item.programType == 1){
+        this.playName = item.programName;
+        let getData = await this.axio.post('/vod/episodes',{id:item.id})
+        this.seriesData = getData.data.data
+        if(!this.seriesData[0].seriesNum){
+            this.$message({
+                message: "暂时没有播放数据",
+                type: "warning",
+                center: true
+            });
+          return
+        }
+
+        this.dialogVisible  = true
+        return
+      }
       if(this.play_url){
         this.$message({
             message: "请先停止播放或者刷新页面",
@@ -285,45 +339,35 @@ export default {
         return;
       }
       this.isLoad = true
-      let { contentId, programId, programType, breakPoint, id } = item;
+      let { contentId, programId, programType, breakPoint, id, programName, columnId } = item;
+      this.playName = programName;
       let obj = {
         contentId,
         programId,
+        columnId,
         programType,
-        breakPoint,
+        breakPoint:"0",
+        programName,
         carrier: this.carrier,
         id,
         device_id: this.device_id
       };
-
-      await this.exchangeUrl(obj);
-      let rs = ''
-      while(!rs){
-         await this.sleep_wait(500);
-         rs =  await this.mediaStatus()
-         console.log('-----')
-      }
-      // console.log(obj)
-      // if(programType === 0){
-      //   console.log('电影')
-      // }else if(programType === 1){
-      //   console.log('电视剧')
-      // }
+      this.exchangeUrl(obj);
     },
-    // initIo() {
-    //   this.io = socketIo("ws://192.168.1.165:3000", {
-    //     query: { token: `${this.serial_number}`, client_type: "web" }
-    //   });
-    //   this.io.on("error", data => {
-    //     console.log("error------", data);
-    //   });
-    //   this.io.on("connect_error", data => {
-    //     console.log("connect_error------", data);
-    //   });
-    // },
+
     beforeDestroy(){
       this.io = null;
-    }
+      clearInterval(this.time);
+    },
+    
   }
 };
 </script>
+<style>
+.demand-wrapper .el-dialog__footer{
+      padding: 10px 20px 20px!important;
+}
+ .el-button.is-circle {
+    margin-left: 10px;
+}
+</style>

@@ -190,10 +190,30 @@
         background-image: url('../assets/icon_me.png');
     }
     .password_css {
+        position: relative;
         background-image: url('../assets/icon_key.png');
     }
     .logout_css {
+        position: relative;
         background-image: url('../assets/icon_logout.png');
+    }
+    .logout_css::after{
+      content:'退出登录';
+      display: inline-block;
+      position: absolute;
+      font-size: 12px;
+      height: 0.15rem;
+      bottom: 0.25rem;
+      left: 0.13rem;
+    }
+    .password_css::after{
+      content:'修改密码';
+      display: inline-block;
+      position: absolute;
+      font-size: 12px;
+      height: 0.15rem;
+      bottom: 0.25rem;
+      left: 0.13rem;
     }
     .el-menu{
       border-right: 0px;

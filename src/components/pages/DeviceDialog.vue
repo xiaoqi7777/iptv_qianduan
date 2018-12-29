@@ -8,12 +8,16 @@
         <el-form-item prop="serial_number" label="唯一码串号">
           <el-input v-model="deviceForm.serial_number"></el-input>
         </el-form-item>
-        <el-form-item prop="serial_type" label="唯一设备号">
-          <el-input v-model="deviceForm.serial_type"></el-input>
-        </el-form-item>
         <el-form-item prop="description" label="设备描述">
           <el-input type="textarea" :rows="4" v-model="deviceForm.description"></el-input>
         </el-form-item>
+      <el-form-item label="设备类型">
+        <el-select v-model="deviceForm.carrier	" placeholder="请选择">
+          <el-option label="中国电信" value="chinanet"></el-option>
+          <el-option label="中国移动" value="cmcc"></el-option>
+          <el-option label="中国联通" value="unicom"></el-option>
+        </el-select>
+      </el-form-item>
         <el-form-item prop="disabled" label="是否禁用">
           <el-switch v-model="deviceForm.disabled"></el-switch>
         </el-form-item>
@@ -55,9 +59,9 @@
         deviceForm: {
           name: '',
           serial_number: '',
-          serial_type:'',
           description: '',
-          disabled: false
+          disabled: false,
+          carrier:''
         },
         deviceRules: {
           name: [
@@ -67,10 +71,31 @@
             { required: true, message: '请填写唯一码串号', trigger: 'blur' }
           ]
         },
-        fastClick: true
+        fastClick: true,
+        carrier:null,
+      }
+    },
+    filters:{
+      fitCarrier(item){
+        if(item === 'chinanet'){
+            return '中国电信'; 
+        }
+        if(item === 'unicom'){
+            return '中国联通'; 
+        }
+        if(item === 'cmcc'){
+            return '中国移动'; 
+        }
+        if(item === null){
+          return '请选择'
+        }
       }
     },
     methods: {
+      handleCommand(command){
+        this.carrier = command
+      },
+
       hangleClose () {
         this.$emit('updateTable')
         this.$emit('update:show', false)
@@ -128,6 +153,7 @@
             this.fastClick = true
           }, 2000)
           this.$refs.deviceForm.validate((valid) => {
+
             if(valid) {
               if(this.device !== null) {
                 this.axio.put(`device/update`, this.deviceForm).then((response) => {
@@ -178,3 +204,10 @@
   }
   
 </style>
+
+
+
+
+
+
+
