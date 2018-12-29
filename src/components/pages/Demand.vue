@@ -76,7 +76,7 @@
         <el-button  v-for="(item,index) in seriesData" :key="index" circle @click="selectedSeriesNum(item)">{{item.newProgramName}}</el-button>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="isOk">确 定</el-button>
+          <el-button type="primary" @click="btnIsOk">确 定</el-button>
         </span>
       </el-dialog>
       <PlayDialog v-if="play_dialog" :play="playUrl" :name='playName' @stopPlay="stopPlayFn" :types="`rtmp/mp4`"  :show.sync="play_dialog"></PlayDialog>
@@ -166,15 +166,13 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
-    isOk() {
-      console.log(this.playName, this.seriesNumData);
+    btnIsOk() {
       this.dialogVisible = false;
       let obj = {
         ...this.seriesNumData,
         programName: this.playName,
         id: this.seriesNumData.vodId
       };
-      console.log("isOk", obj);
       this.playMove(obj);
     },
     selectedSeriesNum(item) {
@@ -209,7 +207,6 @@ export default {
     },
     // 查询盒子状态
     async playStatus(data) {
-      console.log("--------查状态");
       if (data.data && data.data.play_status) {
         this.isLoad = false;
         this.play_dialog = true;
@@ -224,7 +221,6 @@ export default {
     },
 
     monitorPlayUrl() {
-      console.log("-*---", this.io);
       if (this.io) {
         this.io.on("single_media_play_url", message => {
           this.play_url = message.play_url;
@@ -297,7 +293,6 @@ export default {
 
     async exchangeUrl(obj) {
       let id = obj;
-      console.log("exchangeUrlid", id);
       await this.axio.post("/vod/play", id);
     },
 
