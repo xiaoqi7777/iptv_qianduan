@@ -86,23 +86,23 @@
 
 <script>
 import PlayDialog from "./PlayDialog.vue";
-import LiveLoad from './LiveLoad';
+import LiveLoad from "./LiveLoad";
 import socketIo from "socket.io-client";
 export default {
   name: "demand",
   mounted() {
     //获取路由传递过来的参数
     let routeData = this.$route.params.id;
-    this.io = this.$route.params.io
+    this.io = this.$route.params.io;
     this.serial_number = routeData.serial_number;
     this.carrier = routeData.carrier;
     this.device_id = routeData.id;
     //查询点播列表
     this.getDemandList();
     //查询播放状态
-    this.mediaStatus()
+    this.mediaStatus();
     //监视播放地址
-    this.monitorPlayUrl()
+    this.monitorPlayUrl();
   },
   filters: {
     typeFormate: function(val) {
@@ -149,105 +149,111 @@ export default {
       carrier: "",
       serial_number: "",
       device_id: "",
-      mediaCode:null,
-      play_url:null,
-      time:null,
-      isLoad:false,
-      playUrl:null,
-      io:null,
-      playName:null,
-      frequency:0,
+      mediaCode: null,
+      play_url: null,
+      time: null,
+      isLoad: false,
+      playUrl: null,
+      io: null,
+      playName: null,
+      frequency: 0,
       dialogVisible: false,
-      seriesNumData:[],
-      seriesData:[]
+      seriesNumData: [],
+      seriesData: []
     };
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
-    isOk(){
-      console.log( this.playName,this.seriesNumData)
-      this.dialogVisible = false
-      let obj  = {...this.seriesNumData,programName:this.playName,id:this.seriesNumData.vodId}
-      console.log('isOk',obj)
-      this.playMove(obj)
+    isOk() {
+      console.log(this.playName, this.seriesNumData);
+      this.dialogVisible = false;
+      let obj = {
+        ...this.seriesNumData,
+        programName: this.playName,
+        id: this.seriesNumData.vodId
+      };
+      console.log("isOk", obj);
+      this.playMove(obj);
     },
-    selectedSeriesNum(item){
-      this.seriesNumData = item
+    selectedSeriesNum(item) {
+      this.seriesNumData = item;
     },
     handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done();
-          })
-          .catch(_ => {});
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
     },
-    stopPlayFn(){
-      let obj ={ play_url: this.play_url }
+    stopPlayFn() {
+      let obj = { play_url: this.play_url };
       this.io.emit("stop_single_media", obj);
       this.count = 0;
       this.io.on("stop_single_media_reply", data => {
-        this.play_url = null
-        this.playUrl = null
-          this.count++;
-          if (this.count == 1) {
-            this.io.emit("key_board", {
-              value: "back"
-            });
-            this.$message({
-              message: "取消播放",
-              type: "success",
-              center: true
-            });
-          } 
+        this.play_url = null;
+        this.playUrl = null;
+        this.count++;
+        if (this.count == 1) {
+          this.io.emit("key_board", {
+            value: "back"
+          });
+          this.$message({
+            message: "取消播放",
+            type: "success",
+            center: true
+          });
+        }
       });
     },
     // 查询盒子状态
-    async playStatus(data){
-      console.log('--------查状态')
+    async playStatus(data) {
+      console.log("--------查状态");
       if (data.data && data.data.play_status) {
-        this.isLoad = false
-        this.play_dialog = true
-        this.playUrl = this.play_url
-      }else{
+        this.isLoad = false;
+        this.play_dialog = true;
+        this.playUrl = this.play_url;
+      } else {
         //再次查询
         clearInterval(this.time);
         this.time = setInterval(() => {
-            this.mediaStatus();
-          }, 1000);
-        }
+          this.mediaStatus();
+        }, 1000);
+      }
     },
-    
+
     monitorPlayUrl() {
-      console.log('-*---',this.io)
-      if(this.io){
+      console.log("-*---", this.io);
+      if (this.io) {
         this.io.on("single_media_play_url", message => {
-            this.play_url = message.play_url;
-            this.playName = message.channel_name;
-            this.mediaStatus()
+          this.play_url = message.play_url;
+          this.playName = message.channel_name;
+          this.mediaStatus();
         });
       }
     },
 
-    async mediaStatus(){
-        let obj = {
-            device_id: this.device_id,
-            type: "vod"
-          };
-        let getData = await this.axio.post( "/device/get_current_single_media_task", obj);
-        let data = getData.data;
-        this.mediaCode = data.ret.code;
-        if (data.data) {
-          clearInterval(this.time);
-          this.play_url = data.data.play_url;
-          this.playName = data.data.name
-
-        }
-        //判断1、data.ret.code === 0 同时有播放地址 => 任务
-        if (this.mediaCode === 0 && this.play_url) {
-          this.playStatus(data);
-        } 
+    async mediaStatus() {
+      let obj = {
+        device_id: this.device_id,
+        type: "vod"
+      };
+      let getData = await this.axio.post(
+        "/device/get_current_single_media_task",
+        obj
+      );
+      let data = getData.data;
+      this.mediaCode = data.ret.code;
+      if (data.data) {
+        clearInterval(this.time);
+        this.play_url = data.data.play_url;
+        this.playName = data.data.name;
+      }
+      //判断1、data.ret.code === 0 同时有播放地址 => 任务
+      if (this.mediaCode === 0 && this.play_url) {
+        this.playStatus(data);
+      }
     },
     // 查询点播列表
     getDemandList() {
@@ -291,7 +297,7 @@ export default {
 
     async exchangeUrl(obj) {
       let id = obj;
-      console.log('exchangeUrlid',id)
+      console.log("exchangeUrlid", id);
       await this.axio.post("/vod/play", id);
     },
 
@@ -313,40 +319,47 @@ export default {
       });
     },
     async playMove(item) {
-
-      if(item.programType == 1){
+      if (item.programType == 1) {
         this.playName = item.programName;
-        let getData = await this.axio.post('/vod/episodes',{id:item.id})
-        this.seriesData = getData.data.data
-        if(!this.seriesData[0].seriesNum){
-            this.$message({
-                message: "暂时没有播放数据",
-                type: "warning",
-                center: true
-            });
-          return
-        }
-
-        this.dialogVisible  = true
-        return
-      }
-      if(this.play_url){
-        this.$message({
-            message: "请先停止播放或者刷新页面",
+        let getData = await this.axio.post("/vod/episodes", { id: item.id });
+        this.seriesData = getData.data.data;
+        if (!this.seriesData[0].seriesNum) {
+          this.$message({
+            message: "暂时没有播放数据",
             type: "warning",
             center: true
+          });
+          return;
+        }
+
+        this.dialogVisible = true;
+        return;
+      }
+      if (this.play_url) {
+        this.$message({
+          message: "请先停止播放或者刷新页面",
+          type: "warning",
+          center: true
         });
         return;
       }
-      this.isLoad = true
-      let { contentId, programId, programType, breakPoint, id, programName, columnId } = item;
+      this.isLoad = true;
+      let {
+        contentId,
+        programId,
+        programType,
+        breakPoint,
+        id,
+        programName,
+        columnId
+      } = item;
       this.playName = programName;
       let obj = {
         contentId,
         programId,
         columnId,
         programType,
-        breakPoint:"0",
+        breakPoint: "0",
         programName,
         carrier: this.carrier,
         id,
@@ -355,19 +368,18 @@ export default {
       this.exchangeUrl(obj);
     },
 
-    beforeDestroy(){
+    beforeDestroy() {
       this.io = null;
       clearInterval(this.time);
-    },
-    
+    }
   }
 };
 </script>
 <style>
-.demand-wrapper .el-dialog__footer{
-      padding: 10px 20px 20px!important;
+.demand-wrapper .el-dialog__footer {
+  padding: 10px 20px 20px !important;
 }
- .el-button.is-circle {
-    margin-left: 10px;
+.el-button.is-circle {
+  margin-left: 10px;
 }
 </style>
