@@ -314,10 +314,27 @@ export default {
       });
     },
     async playMove(item) {
+      
       if (item.programType == 1) {
         this.playName = item.programName;
-        let getData = await this.axio.post("/vod/episodes", { id: item.id });
-        this.seriesData = getData.data.data;
+        let getData = await this.axio.post("/vod/get_episodes", { device_id: item.device_id ,obj:item});
+        getData = getData.data
+        if(getData.ret.code === 0){
+          this.seriesData = getData.data.data
+          this.seriesData = this.seriesData.map(data=>{
+            let obj = {
+              ...data,
+              contentId:item.contentId,
+              createdAt:item.createdAt,
+              // id:item.id,
+              breakPoint:item.breakPoint,
+              columnId:item.columnId,
+              seriesNum:item.seriesNum,
+              updatedAt:item.updatedAt,
+              vodId:item.id}
+            return obj
+          })
+        }
         if (!this.seriesData[0].seriesNum) {
           this.$message({
             message: "暂时没有播放数据",
@@ -326,10 +343,10 @@ export default {
           });
           return;
         }
-
         this.dialogVisible = true;
         return;
       }
+
       if (this.play_url) {
         this.$message({
           message: "请先停止播放或者刷新页面",

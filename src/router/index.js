@@ -81,3 +81,10 @@ router.beforeEach((to, from, next) => {
 
 
 export default router
+
+
+function getVodOneData(columnId, programId, programType){
+  return  `get_vod_info.jsp?columnId=${columnId}&programId=${programId}&programType=${programType}`
+}
+let a =  getVodOneData("0A0103","0000000003020015621368","1")
+console.log('a',a)
