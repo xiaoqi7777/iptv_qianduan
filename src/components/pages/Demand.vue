@@ -265,12 +265,10 @@ export default {
       }
       if (status) {
         Object.assign(params, this.filters);
-        params.current_page = 1;
         params.carrier = this.carrier;
 
         this.axio.post(`vod/list`, params).then(response => {
           if (response.data.ret.code === 0) {
-            this.currentPage = 1;
             this.totalPage = response.data.data.total;
             this.tableData = response.data.data.res;
           }
